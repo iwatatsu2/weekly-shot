@@ -50,7 +50,7 @@ export function useLiff() {
       .catch((err: Error) => {
         setState((prev) => ({
           ...prev,
-          error: `LIFF初期化エラー: ${err.message}`,
+          error: `LIFF初期化エラー: ${err.message} (ID: ${liffId})`,
         }));
       });
   }, []);
