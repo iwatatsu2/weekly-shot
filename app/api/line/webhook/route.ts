@@ -132,6 +132,15 @@ async function handleText(
     return;
   }
 
+  if (["テスト"].includes(normalized)) {
+    const testUrl = "https://weekly-shot.vercel.app/liff-test.html";
+    await lineClient.replyMessage({
+      replyToken,
+      messages: [{ type: "text", text: `テストページ:\n${testUrl}` }],
+    });
+    return;
+  }
+
   if (["設定", "設定する"].includes(normalized)) {
     const liffUrl = `https://liff.line.me/${process.env.NEXT_PUBLIC_LIFF_ID || "2010011578-db7AxPzc"}`;
     await lineClient.replyMessage({
