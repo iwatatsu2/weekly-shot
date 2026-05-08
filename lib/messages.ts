@@ -1,5 +1,6 @@
 const NOTE_BASE_URL = process.env.NOTE_BASE_URL || "https://note.com/dr_iwatatsu";
 const X_URL = "https://x.com/dr_iwatatsu";
+const DIARY_URL = `https://liff.line.me/${process.env.NEXT_PUBLIC_LIFF_ID || "2010011578-db7AxPzc"}/diary.html`;
 
 function formatDate(date: Date): string {
   const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
@@ -38,7 +39,10 @@ ${NOTE_BASE_URL}`,
 
   confirmed(nextDate: Date, nextTime: string, includeNote: boolean): string {
     let msg = `お疲れさまでした👏
-次回は${formatDate(nextDate)} ${formatTime(nextTime)}にお知らせします。`;
+次回は${formatDate(nextDate)} ${formatTime(nextTime)}にお知らせします。
+
+📊 体重を記録する:
+${DIARY_URL}`;
 
     if (includeNote) {
       msg += `\n\n📖 副作用が出たときの対処法は、こちらのnote記事で解説しています:\n${NOTE_BASE_URL}`;

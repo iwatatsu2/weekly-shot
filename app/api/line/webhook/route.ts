@@ -146,13 +146,27 @@ if (["設定", "設定する"].includes(normalized)) {
     return;
   }
 
+  if (["体重", "記録", "体重記録"].includes(normalized)) {
+    const liffUrl = `https://liff.line.me/${process.env.NEXT_PUBLIC_LIFF_ID || "2010011578-db7AxPzc"}/diary.html`;
+    await lineClient.replyMessage({
+      replyToken,
+      messages: [
+        {
+          type: "text",
+          text: `以下のリンクから体重を記録できます📊\n${liffUrl}`,
+        },
+      ],
+    });
+    return;
+  }
+
   if (["ヘルプ", "help", "使い方"].includes(normalized)) {
     await lineClient.replyMessage({
       replyToken,
       messages: [
         {
           type: "text",
-          text: `【WeeklyShot 使い方】\n\nトーク画面で以下のキーワードを送信してください:\n\n💉「設定」→ 注射スケジュールの登録・変更\n⏸「停止」→ 通知の一時停止\n▶️「再開」→ 通知の再開\n\n注射日の前日と当日にLINEでお知らせします。\n\n━━━━━━━━━━\n👨‍⚕️ 開発者: Dr.いわたつ（内分泌専門医）\n📖 note: https://note.com/dr_iwatatsu\n𝕏 X: https://x.com/dr_iwatatsu`,
+          text: `【WeeklyShot 使い方】\n\nトーク画面で以下のキーワードを送信してください:\n\n💉「設定」→ 注射スケジュールの登録・変更\n📊「体重」→ 体重を記録する\n⏸「停止」→ 通知の一時停止\n▶️「再開」→ 通知の再開\n\n注射日の前日と当日にLINEでお知らせします。\n\n━━━━━━━━━━\n👨‍⚕️ 開発者: Dr.いわたつ（内分泌専門医）\n📖 note: https://note.com/dr_iwatatsu\n𝕏 X: https://x.com/dr_iwatatsu`,
         },
       ],
     });
