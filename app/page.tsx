@@ -144,12 +144,12 @@ export default function Home() {
           友だち追加後、曜日と時刻を設定するだけで使えます
         </p>
         <a
-          href="https://liff.line.me/2010011578-db7AxPzc/diary.html"
+          href="https://weekly-shot.vercel.app/diary.html"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-block mt-4 text-sm text-blue-600 hover:underline"
+          className="inline-flex items-center gap-2 bg-blue-600 text-white font-bold text-lg px-8 py-4 rounded-full shadow-lg hover:opacity-90 transition-opacity mt-4"
         >
-          体重を記録する →
+          体重を記録する
         </a>
       </section>
 
