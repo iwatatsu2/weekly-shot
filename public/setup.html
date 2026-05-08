@@ -133,12 +133,11 @@ var state = { weekday: 6, time: "21:00", medication: "unspecified", accessToken:
 
 // 時刻セレクト生成
 var sel = document.getElementById("time-select");
-for (var i = 0; i < 48; i++) {
-  var h = Math.floor(i/2).toString().padStart(2,"0");
-  var m = i%2===0?"00":"30";
+for (var i = 0; i < 24; i++) {
+  var h = i.toString().padStart(2,"0");
   var opt = document.createElement("option");
-  opt.value = h+":"+m;
-  opt.textContent = h+":"+m;
+  opt.value = h+":00";
+  opt.textContent = h+":00";
   if (opt.value === "21:00") opt.selected = true;
   sel.appendChild(opt);
 }
