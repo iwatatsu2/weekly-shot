@@ -237,7 +237,7 @@ if (["通知オフ", "通知OFF"].includes(normalized)) {
   }
 
   if (["体重", "記録", "体重記録"].includes(normalized)) {
-    const liffUrl = `https://liff.line.me/${process.env.NEXT_PUBLIC_LIFF_ID || "2010011578-db7AxPzc"}/diary.html`;
+    const liffUrl = "https://liff.line.me/2010011578-1vSQw5Gj";
     await lineClient.replyMessage({
       replyToken,
       messages: [

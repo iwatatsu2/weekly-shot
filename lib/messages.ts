@@ -1,6 +1,6 @@
 const NOTE_BASE_URL = process.env.NOTE_BASE_URL || "https://note.com/dr_iwatatsu";
 const X_URL = "https://x.com/KenKyu1019799";
-const DIARY_URL = `https://liff.line.me/${process.env.NEXT_PUBLIC_LIFF_ID || "2010011578-db7AxPzc"}/diary.html`;
+const DIARY_URL = "https://liff.line.me/2010011578-1vSQw5Gj";
 
 function formatDate(date: Date): string {
   const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
