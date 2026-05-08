@@ -218,7 +218,7 @@ function handleSubmit() {
       show("done-view");
     } else {
       var errEl = document.getElementById("api-error");
-      errEl.textContent = data.error || "登録に失敗しました";
+      errEl.textContent = JSON.stringify(data);
       errEl.classList.remove("hidden");
       btn.disabled = false;
       btn.textContent = state.existing ? "設定を更新する" : "登録する";
