@@ -6,6 +6,7 @@
 <title>WeeklyShot - 体重記録</title>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3/dist/chartjs-plugin-annotation.min.js"></script>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f9fafb; color: #374151; }
@@ -15,14 +16,18 @@ h1 { text-align: center; font-size: 1.25rem; font-weight: bold; margin-top: 1.5r
 .name { text-align: center; font-size: .875rem; color: #6b7280; margin-bottom: .25rem; }
 .label { display: block; font-size: .875rem; font-weight: 500; color: #374151; margin-bottom: .5rem; }
 .section { margin-bottom: 1.25rem; }
-input[type="number"] { width: 100%; padding: .75rem; border: 1px solid #e5e7eb; border-radius: .5rem; background: #fff; font-size: 1.125rem; -webkit-appearance: none; }
-input[type="number"]:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+input[type="number"], input[type="date"], select { width: 100%; padding: .75rem; border: 1px solid #e5e7eb; border-radius: .5rem; background: #fff; font-size: 1.125rem; -webkit-appearance: none; }
+input:focus, select:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
 .input-group { display: flex; align-items: center; gap: .5rem; }
-.input-group input { flex: 1; }
+.input-group input, .input-group select { flex: 1; }
 .unit { font-size: 1rem; color: #6b7280; font-weight: 500; }
 .submit { width: 100%; padding: 1rem; background: #2563eb; color: #fff; font-weight: bold; font-size: 1.125rem; border: none; border-radius: .75rem; cursor: pointer; margin-top: .5rem; }
 .submit:disabled { opacity: .5; }
 .submit:hover:not(:disabled) { background: #1d4ed8; }
+.btn-secondary { width: 100%; padding: .75rem; background: #fff; color: #374151; font-weight: 600; font-size: .875rem; border: 1px solid #e5e7eb; border-radius: .75rem; cursor: pointer; margin-top: .5rem; }
+.btn-secondary:hover { background: #f9fafb; }
+.btn-sm { padding: .5rem .75rem; font-size: .75rem; border-radius: .5rem; background: #2563eb; color: #fff; border: none; cursor: pointer; font-weight: 600; }
+.btn-sm:hover { background: #1d4ed8; }
 .error { background: #fef2f2; border: 1px solid #fecaca; border-radius: .5rem; padding: .75rem; font-size: .875rem; color: #dc2626; margin-bottom: 1rem; }
 .success { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: .5rem; padding: .75rem; font-size: .875rem; color: #16a34a; margin-bottom: 1rem; text-align: center; }
 .loading { display: flex; align-items: center; justify-content: center; min-height: 100vh; color: #6b7280; }
@@ -35,6 +40,12 @@ input[type="number"]:focus { outline: none; border-color: #2563eb; box-shadow: 0
 .change-value.gain { color: #ef4444; }
 .change-value.neutral { color: #6b7280; }
 .change-sub { font-size: .75rem; color: #9ca3af; margin-top: .25rem; }
+.bmi-line { font-size: .875rem; color: #6b7280; margin-top: .5rem; }
+.bmi-line strong { color: #374151; }
+
+/* 身長セクション */
+.height-bar { display: flex; align-items: center; justify-content: space-between; background: #fff; border: 1px solid #e5e7eb; border-radius: .75rem; padding: .75rem 1rem; margin-bottom: 1.25rem; font-size: .875rem; }
+.height-bar .edit-link { color: #2563eb; cursor: pointer; font-size: .75rem; }
 
 /* グラフ */
 .chart-container { background: #fff; border: 1px solid #e5e7eb; border-radius: .75rem; padding: 1rem; margin-bottom: 1.25rem; }
@@ -43,6 +54,15 @@ input[type="number"]:focus { outline: none; border-color: #2563eb; box-shadow: 0
 .chart-toggle button.active { background: #2563eb; color: #fff; border-color: #2563eb; }
 .no-data { text-align: center; color: #9ca3af; font-size: .875rem; padding: 2rem 0; }
 
+/* 用量変更 */
+.dose-section { background: #fff; border: 1px solid #e5e7eb; border-radius: .75rem; padding: 1rem; margin-bottom: 1.25rem; }
+.dose-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: .75rem; }
+.dose-header h3 { font-size: .875rem; font-weight: 600; }
+.dose-form { display: none; }
+.dose-form.open { display: block; }
+.dose-history { margin-top: .75rem; }
+.dose-item { display: flex; justify-content: space-between; font-size: .8rem; padding: .4rem 0; border-bottom: 1px solid #f3f4f6; color: #6b7280; }
+
 /* 履歴 */
 .history { margin-bottom: 1.25rem; }
 .history-title { font-size: .875rem; font-weight: 600; color: #374151; margin-bottom: .5rem; }
@@ -50,6 +70,7 @@ input[type="number"]:focus { outline: none; border-color: #2563eb; box-shadow: 0
 .history-date { color: #6b7280; }
 .history-weight { font-weight: 600; }
 .history-fat { font-size: .75rem; color: #9ca3af; margin-left: .5rem; }
+.history-bmi { font-size: .75rem; color: #6b7280; margin-left: .5rem; }
 
 /* Profile card */
 .profile-card { background: #fff; border: 1px solid #e5e7eb; border-radius: .75rem; padding: 1.25rem; margin: 1.5rem 0 1rem; text-align: left; }
@@ -84,10 +105,27 @@ input[type="number"]:focus { outline: none; border-color: #2563eb; box-shadow: 0
     <div id="api-error" class="error hidden"></div>
     <div id="api-success" class="success hidden"></div>
 
+    <!-- 身長バー（設定済み時） -->
+    <div id="height-bar" class="height-bar hidden">
+      <span>身長: <strong id="height-display"></strong> cm</span>
+      <span class="edit-link" onclick="toggleHeightEdit()">変更</span>
+    </div>
+
+    <!-- 身長入力（未設定 or 編集時） -->
+    <div id="height-form" class="section hidden">
+      <span class="label">身長（BMI計算に使用）</span>
+      <div class="input-group">
+        <input type="number" id="height-input" step="0.1" min="100" max="250" placeholder="170.0" inputmode="decimal">
+        <span class="unit">cm</span>
+        <button class="btn-sm" onclick="saveHeight()">保存</button>
+      </div>
+    </div>
+
     <!-- 変化量カード -->
     <div id="change-card" class="change-card hidden">
       <div id="change-value" class="change-value neutral">±0.0kg</div>
       <div id="change-sub" class="change-sub"></div>
+      <div id="bmi-line" class="bmi-line hidden"></div>
     </div>
 
     <!-- グラフ -->
@@ -118,6 +156,40 @@ input[type="number"]:focus { outline: none; border-color: #2563eb; box-shadow: 0
 
     <button class="submit" id="submit-btn" onclick="handleSubmit()">記録する</button>
 
+    <!-- 用量変更セクション -->
+    <div class="dose-section" style="margin-top:1.25rem;">
+      <div class="dose-header">
+        <h3>💊 用量変更</h3>
+        <button class="btn-sm" onclick="toggleDoseForm()">記録する</button>
+      </div>
+      <div id="dose-form" class="dose-form">
+        <div class="section" style="margin-top:.75rem;">
+          <span class="label">薬剤</span>
+          <select id="dose-med" onchange="updateDoseOptions()">
+            <option value="wegovy">ウゴービ（セマグルチド）</option>
+            <option value="zepbound">ゼップバウンド（チルゼパチド）</option>
+            <option value="other">その他</option>
+          </select>
+        </div>
+        <div class="section">
+          <span class="label">用量</span>
+          <select id="dose-amount">
+            <option value="0.25mg">0.25mg</option>
+            <option value="0.5mg">0.5mg</option>
+            <option value="1.0mg">1.0mg</option>
+            <option value="1.7mg">1.7mg</option>
+            <option value="2.4mg">2.4mg</option>
+          </select>
+        </div>
+        <div class="section">
+          <span class="label">変更日</span>
+          <input type="date" id="dose-date">
+        </div>
+        <button class="submit" style="font-size:.875rem;padding:.75rem;" onclick="saveDose()">用量変更を記録</button>
+      </div>
+      <div id="dose-history" class="dose-history"></div>
+    </div>
+
     <!-- 直近の履歴 -->
     <div id="history-section" class="history hidden" style="margin-top:1.25rem;">
       <div class="history-title">直近の記録</div>
@@ -126,10 +198,13 @@ input[type="number"]:focus { outline: none; border-color: #2563eb; box-shadow: 0
 
     <!-- Profile -->
     <div class="profile-card">
-      <div class="profile-header">
-        <span class="profile-badge">開発者</span>
-        <strong>Dr.いわたつ</strong>
-        <span class="profile-desc">糖尿病・内分泌専門医 / 医療×AI×実装</span>
+      <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem;">
+        <img src="/dr-iwatatsu.png" alt="Dr.いわたつ" width="56" height="56" style="border-radius:50%;">
+        <div class="profile-header" style="margin-bottom:0;">
+          <span class="profile-badge">開発・監修</span>
+          <strong>Dr.いわたつ</strong>
+          <span class="profile-desc">糖尿病・内分泌専門医 / 医療×AI×実装</span>
+        </div>
       </div>
       <div class="profile-links">
         <a href="https://driwatatsu.readdy.co" class="profile-link" target="_blank">
@@ -156,9 +231,15 @@ input[type="number"]:focus { outline: none; border-color: #2563eb; box-shadow: 0
 
 <script>
 var LIFF_ID = "2010011578-1vSQw5Gj";
-var state = { userId: null, displayName: null, logs: [] };
+var state = { userId: null, displayName: null, logs: [], height: null, doseChanges: [] };
 var chart = null;
 var currentRange = "30d";
+
+var DOSE_OPTIONS = {
+  wegovy: ["0.25mg", "0.5mg", "1.0mg", "1.7mg", "2.4mg"],
+  zepbound: ["2.5mg", "5mg", "7.5mg", "10mg", "12.5mg", "15mg"],
+  other: ["低用量", "中用量", "高用量"]
+};
 
 function show(id) {
   ["loading","error-view","main-view"].forEach(function(v) {
@@ -176,15 +257,18 @@ function showError(msg) {
   show("error-view");
 }
 
+function calcBMI(weight, heightCm) {
+  if (!heightCm || !weight) return null;
+  var h = heightCm / 100;
+  return (weight / (h * h)).toFixed(1);
+}
+
 // LIFF初期化
 liff.init({ liffId: LIFF_ID }).then(function() {
-  // LINE内ブラウザでなければ案内表示
   if (!liff.isInClient() && !liff.isLoggedIn()) {
     showError("LINEアプリから開いてください。\nWeeklyShotのトーク画面で「体重」と送信すると、記録画面を開けます。");
     return;
   }
-
-  // LINE内だが未ログイン（通常ありえないが念のため）
   if (!liff.isLoggedIn()) {
     liff.login();
     return;
@@ -197,12 +281,17 @@ liff.init({ liffId: LIFF_ID }).then(function() {
     nameEl.textContent = profile.displayName + " さん";
     nameEl.classList.remove("hidden");
 
-    return fetch("/api/weight", {
-      headers: { "X-Line-UserId": profile.userId }
-    });
-  }).then(function(r){ return r.json(); }).then(function(data) {
-    state.logs = data.logs || [];
-    renderData();
+    // 並列でデータ取得
+    return Promise.all([
+      fetch("/api/weight", { headers: { "X-Line-UserId": profile.userId } }).then(function(r){ return r.json(); }),
+      fetch("/api/user/profile", { headers: { "X-Line-UserId": profile.userId } }).then(function(r){ return r.json(); }),
+      fetch("/api/dose", { headers: { "X-Line-UserId": profile.userId } }).then(function(r){ return r.json(); })
+    ]);
+  }).then(function(results) {
+    state.logs = results[0].logs || [];
+    state.height = results[1].height;
+    state.doseChanges = results[2].changes || [];
+    renderAll();
     show("main-view");
   }).catch(function(err) {
     show("main-view");
@@ -212,10 +301,61 @@ liff.init({ liffId: LIFF_ID }).then(function() {
   showError("LIFF初期化エラー: " + (err.code||"") + " " + (err.message||err));
 });
 
+function renderAll() {
+  renderHeight();
+  renderData();
+  renderDoseHistory();
+  // 日付デフォルト
+  var today = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Tokyo" });
+  document.getElementById("dose-date").value = today;
+}
+
+function renderHeight() {
+  if (state.height) {
+    document.getElementById("height-display").textContent = state.height;
+    document.getElementById("height-bar").classList.remove("hidden");
+    document.getElementById("height-form").classList.add("hidden");
+  } else {
+    document.getElementById("height-bar").classList.add("hidden");
+    document.getElementById("height-form").classList.remove("hidden");
+  }
+}
+
+function toggleHeightEdit() {
+  var form = document.getElementById("height-form");
+  var bar = document.getElementById("height-bar");
+  if (form.classList.contains("hidden")) {
+    form.classList.remove("hidden");
+    bar.classList.add("hidden");
+    if (state.height) document.getElementById("height-input").value = state.height;
+  } else {
+    form.classList.add("hidden");
+    if (state.height) bar.classList.remove("hidden");
+  }
+}
+
+function saveHeight() {
+  var val = parseFloat(document.getElementById("height-input").value);
+  if (!val || val < 100 || val > 250) {
+    alert("身長を正しく入力してください（100〜250cm）");
+    return;
+  }
+  fetch("/api/user/profile", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ line_user_id: state.userId, height: val })
+  }).then(function(r){ return r.json(); }).then(function(data) {
+    if (data.ok) {
+      state.height = val;
+      renderHeight();
+      renderData();
+    }
+  });
+}
+
 function renderData() {
   if (state.logs.length === 0) return;
 
-  // 変化量カード
   var first = state.logs[0];
   var last = state.logs[state.logs.length - 1];
   var diff = (last.weight - first.weight).toFixed(1);
@@ -229,6 +369,15 @@ function renderData() {
   sub.textContent = "開始時 " + first.weight + "kg → 現在 " + last.weight + "kg（" + state.logs.length + "日分）";
   card.classList.remove("hidden");
 
+  // BMI表示
+  if (state.height) {
+    var bmiFirst = calcBMI(first.weight, state.height);
+    var bmiLast = calcBMI(last.weight, state.height);
+    var bmiEl = document.getElementById("bmi-line");
+    bmiEl.innerHTML = "BMI <strong>" + bmiLast + "</strong>（開始時 " + bmiFirst + "）";
+    bmiEl.classList.remove("hidden");
+  }
+
   // 今日の値をフォームに表示
   var today = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Tokyo" });
   var todayLog = state.logs.find(function(l){ return l.recorded_date === today; });
@@ -238,10 +387,7 @@ function renderData() {
     document.getElementById("submit-btn").textContent = "更新する";
   }
 
-  // グラフ
   renderChart();
-
-  // 履歴
   renderHistory();
 }
 
@@ -271,7 +417,6 @@ function renderChart() {
     pointBackgroundColor: "#2563eb"
   }];
 
-  // 体脂肪データがあれば追加
   var fats = logs.map(function(l){ return l.body_fat; });
   var hasFat = fats.some(function(f){ return f !== null; });
   if (hasFat) {
@@ -287,6 +432,39 @@ function renderChart() {
       yAxisID: "y1"
     });
   }
+
+  // 用量変更の縦線アノテーション
+  var annotations = {};
+  var logDates = logs.map(function(l){ return l.recorded_date; });
+  state.doseChanges.forEach(function(dc, i) {
+    var idx = logDates.indexOf(dc.changed_date);
+    if (idx === -1) {
+      // 最も近い日付を探す
+      for (var j = 0; j < logDates.length; j++) {
+        if (logDates[j] >= dc.changed_date) { idx = j; break; }
+      }
+    }
+    if (idx >= 0) {
+      annotations["dose" + i] = {
+        type: "line",
+        xMin: idx,
+        xMax: idx,
+        borderColor: "rgba(139,92,246,0.6)",
+        borderWidth: 2,
+        borderDash: [4, 4],
+        label: {
+          display: true,
+          content: dc.dose,
+          position: "start",
+          backgroundColor: "rgba(139,92,246,0.8)",
+          color: "#fff",
+          font: { size: 10 },
+          padding: 3,
+          borderRadius: 3
+        }
+      };
+    }
+  });
 
   if (chart) chart.destroy();
 
@@ -314,7 +492,10 @@ function renderChart() {
     data: { labels: labels, datasets: datasets },
     options: {
       responsive: true,
-      plugins: { legend: { display: hasFat, labels: { font: { size: 11 } } } },
+      plugins: {
+        legend: { display: hasFat, labels: { font: { size: 11 } } },
+        annotation: { annotations: annotations }
+      },
       scales: scales
     }
   });
@@ -350,11 +531,66 @@ function renderHistory() {
     var item = document.createElement("div");
     item.className = "history-item";
     var fatStr = log.body_fat ? '<span class="history-fat">' + log.body_fat + '%</span>' : '';
-    item.innerHTML = '<span class="history-date">' + dateStr + '</span><span><span class="history-weight">' + log.weight + 'kg</span>' + fatStr + '</span>';
+    var bmiStr = state.height ? '<span class="history-bmi">BMI ' + calcBMI(log.weight, state.height) + '</span>' : '';
+    item.innerHTML = '<span class="history-date">' + dateStr + '</span><span><span class="history-weight">' + log.weight + 'kg</span>' + fatStr + bmiStr + '</span>';
     list.appendChild(item);
   });
 
   section.classList.remove("hidden");
+}
+
+// 用量変更
+function updateDoseOptions() {
+  var med = document.getElementById("dose-med").value;
+  var sel = document.getElementById("dose-amount");
+  sel.innerHTML = "";
+  DOSE_OPTIONS[med].forEach(function(d) {
+    var opt = document.createElement("option");
+    opt.value = d;
+    opt.textContent = d;
+    sel.appendChild(opt);
+  });
+}
+
+function toggleDoseForm() {
+  var form = document.getElementById("dose-form");
+  form.classList.toggle("open");
+}
+
+function saveDose() {
+  var med = document.getElementById("dose-med").value;
+  var dose = document.getElementById("dose-amount").value;
+  var date = document.getElementById("dose-date").value;
+
+  fetch("/api/dose", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ line_user_id: state.userId, medication: med, dose: dose, changed_date: date })
+  }).then(function(r){ return r.json(); }).then(function(data) {
+    if (data.ok) {
+      state.doseChanges.push({ changed_date: date, medication: med, dose: dose });
+      state.doseChanges.sort(function(a,b){ return a.changed_date.localeCompare(b.changed_date); });
+      renderDoseHistory();
+      renderChart();
+      document.getElementById("dose-form").classList.remove("open");
+      var s = document.getElementById("api-success");
+      s.textContent = "用量変更を記録しました";
+      s.classList.remove("hidden");
+      setTimeout(function(){ s.classList.add("hidden"); }, 3000);
+    }
+  });
+}
+
+function renderDoseHistory() {
+  var el = document.getElementById("dose-history");
+  if (state.doseChanges.length === 0) { el.innerHTML = ""; return; }
+  var MED_LABELS = { wegovy: "ウゴービ", zepbound: "ゼップバウンド", other: "その他" };
+  var html = state.doseChanges.map(function(dc) {
+    var d = new Date(dc.changed_date + "T00:00:00");
+    var dateStr = (d.getMonth()+1) + "/" + d.getDate();
+    return '<div class="dose-item"><span>' + dateStr + '</span><span>' + (MED_LABELS[dc.medication]||dc.medication) + " " + dc.dose + '</span></div>';
+  }).join("");
+  el.innerHTML = html;
 }
 
 function handleSubmit() {
@@ -387,10 +623,13 @@ function handleSubmit() {
   }).then(function(r){ return r.json(); }).then(function(data) {
     if (data.ok) {
       var successEl = document.getElementById("api-success");
-      successEl.textContent = "記録しました！";
+      var bmiMsg = "";
+      if (state.height) {
+        bmiMsg = "（BMI " + calcBMI(weight, state.height) + "）";
+      }
+      successEl.textContent = "記録しました！" + bmiMsg;
       successEl.classList.remove("hidden");
 
-      // データ再取得
       return fetch("/api/weight", {
         headers: { "X-Line-UserId": state.userId }
       }).then(function(r){ return r.json(); }).then(function(d) {
