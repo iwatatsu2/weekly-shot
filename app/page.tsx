@@ -148,16 +148,8 @@ export default function Home() {
           LINEで友だち追加
         </a>
         <p className="text-xs text-gray-400 mt-3">
-          友だち追加後、曜日と時刻を設定するだけで使えます
+          友だち追加後、注射リマインダー＆体重記録が使えます
         </p>
-        <a
-          href="https://liff.line.me/2010011578-db7AxPzc/diary.html"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 bg-blue-600 text-white font-bold text-lg px-8 py-4 rounded-full shadow-lg hover:opacity-90 transition-opacity mt-4"
-        >
-          体重を記録する
-        </a>
       </section>
 
       {/* Footer links */}
