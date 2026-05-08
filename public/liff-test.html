@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>LIFF Test</title></head>
+<body>
+<div id="result">Loading LIFF SDK...</div>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script>
+  var liffId = "2010011578-db7AxPzc";
+  document.getElementById("result").textContent = "Initializing LIFF with ID: " + liffId;
+  liff.init({ liffId: liffId })
+    .then(function() {
+      document.getElementById("result").textContent = "LIFF init SUCCESS! isLoggedIn: " + liff.isLoggedIn();
+    })
+    .catch(function(err) {
+      document.getElementById("result").textContent = "LIFF init FAILED: " + err.code + " - " + err.message;
+    });
+</script>
+</body>
+</html>
