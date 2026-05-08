@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Home() {
   return (
@@ -13,17 +14,10 @@ export default function Home() {
           <br />
           もう打ち忘れない。
         </p>
-        <p className="text-sm text-gray-400 mb-8">
-          内分泌専門医が作った無料LINEリマインダー
+        <p className="text-sm text-gray-400 mb-4">
+          糖尿病・内分泌専門医が作った無料LINEリマインダー
         </p>
-
-        <a
-          href="https://lin.ee/XXXXXXX"
-          className="inline-block bg-[#06C755] text-white font-bold py-4 px-8 rounded-xl text-lg hover:bg-[#05b04d] transition-colors"
-        >
-          LINEで友だち追加
-        </a>
-        <p className="text-xs text-gray-400 mt-3">
+        <p className="text-xs text-gray-400">
           完全無料・登録30秒・アプリ不要
         </p>
       </section>
@@ -33,11 +27,21 @@ export default function Home() {
         <div className="max-w-md mx-auto space-y-8">
           <div className="text-center">
             <div className="text-3xl mb-2">💉</div>
-            <h3 className="font-semibold mb-1">前日と当日にLINEでお知らせ</h3>
+            <h3 className="font-semibold mb-1">注射日の当日にLINEでお知らせ</h3>
             <p className="text-sm text-gray-500">
-              注射日の前日21:00と当日の設定時刻に
+              設定した曜日・時刻に
               <br />
               リマインドが届きます
+            </p>
+          </div>
+
+          <div className="text-center">
+            <div className="text-3xl mb-2">📊</div>
+            <h3 className="font-semibold mb-1">体重記録＆グラフ</h3>
+            <p className="text-sm text-gray-500">
+              体重・体脂肪率を記録して
+              <br />
+              推移をグラフで確認できます
             </p>
           </div>
 
@@ -48,16 +52,6 @@ export default function Home() {
               友だち追加して、曜日と時刻を選ぶだけ。
               <br />
               アプリのインストールは不要です
-            </p>
-          </div>
-
-          <div className="text-center">
-            <div className="text-3xl mb-2">👨‍⚕️</div>
-            <h3 className="font-semibold mb-1">内分泌専門医が開発・監修</h3>
-            <p className="text-sm text-gray-500">
-              糖尿病・肥満症の専門医が
-              <br />
-              個人開発しています
             </p>
           </div>
         </div>
@@ -83,34 +77,27 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="px-4 py-12 bg-blue-50 text-center">
-        <h2 className="text-lg font-bold mb-2">
-          まずは友だち追加から
-        </h2>
-        <p className="text-sm text-gray-600 mb-6">
-          完全無料で使えます
-        </p>
-        <a
-          href="https://lin.ee/XXXXXXX"
-          className="inline-block bg-[#06C755] text-white font-bold py-4 px-8 rounded-xl text-lg hover:bg-[#05b04d] transition-colors"
-        >
-          LINEで友だち追加
-        </a>
-      </section>
-
       {/* Developer Profile */}
-      <section className="px-4 py-12">
+      <section className="px-4 py-12 bg-gray-50">
         <div className="max-w-md mx-auto">
           <div className="bg-white border border-gray-200 rounded-xl p-5">
-            <div className="flex flex-col gap-0.5 mb-4">
-              <span className="text-[.65rem] text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full w-fit font-semibold">
-                開発者
-              </span>
-              <strong className="text-base">Dr.いわたつ</strong>
-              <span className="text-xs text-gray-500">
-                糖尿病・内分泌専門医 / 医療×AI×実装
-              </span>
+            <div className="flex items-center gap-3 mb-4">
+              <Image
+                src="/dr-iwatatsu.png"
+                alt="Dr.いわたつ"
+                width={56}
+                height={56}
+                className="rounded-full"
+              />
+              <div className="flex flex-col gap-0.5">
+                <span className="text-[.65rem] text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full w-fit font-semibold">
+                  開発・監修
+                </span>
+                <strong className="text-base">Dr.いわたつ</strong>
+                <span className="text-xs text-gray-500">
+                  糖尿病・内分泌専門医 / 医療×AI×実装
+                </span>
+              </div>
             </div>
             <div className="flex flex-col gap-2">
               <a href="https://driwatatsu.readdy.co" target="_blank" rel="noopener noreferrer"
