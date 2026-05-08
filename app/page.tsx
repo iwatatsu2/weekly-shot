@@ -130,6 +130,21 @@ export default function Home() {
         </div>
       </section>
 
+      {/* CTA */}
+      <section className="px-4 py-12 text-center">
+        <a
+          href="https://lin.ee/5MLyw4d"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 bg-[#06C755] text-white font-bold text-lg px-8 py-4 rounded-full shadow-lg hover:opacity-90 transition-opacity"
+        >
+          LINEで友だち追加
+        </a>
+        <p className="text-xs text-gray-400 mt-3">
+          友だち追加後、曜日と時刻を設定するだけで使えます
+        </p>
+      </section>
+
       {/* Footer links */}
       <div className="px-4 py-6 text-center text-xs text-gray-400 space-x-4">
         <Link href="/terms" className="hover:underline">
