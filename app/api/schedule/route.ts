@@ -48,14 +48,9 @@ function getNextInjectionDate(weekday: number, timeOfDay: string): Date {
 }
 
 export async function GET(req: NextRequest) {
-  const token = req.headers.get("authorization")?.replace("Bearer ", "");
-  if (!token) {
+  const lineUserId = req.headers.get("x-line-userid");
+  if (!lineUserId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const profile = await getLineProfile(token);
-  if (!profile) {
-    return NextResponse.json({ error: "Invalid token" }, { status: 401 });
   }
 
   const supabase = createClient(
@@ -65,7 +60,7 @@ export async function GET(req: NextRequest) {
   const { data: user } = await supabase
     .from("ws_users")
     .select("id, status")
-    .eq("line_user_id", profile.userId)
+    .eq("line_user_id", lineUserId)
     .single();
 
   if (!user) {
@@ -88,29 +83,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const verified = await verifyLiffToken(token);
-  if (!verified) {
-    // デバッグ: verify結果を返す
-    const debugRes = await fetch("https://api.line.me/oauth2/v2.1/verify", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({ access_token: token }),
-    });
-    const debugData = await debugRes.json();
-    return NextResponse.json({ error: "Invalid token", debug: debugData, status_code: debugRes.status }, { status: 401 });
-  }
-
-  const profile = await getLineProfile(token);
-  if (!profile) {
-    return NextResponse.json({ error: "Failed to get profile" }, { status: 401 });
-  }
-
   const body = await req.json();
-  const { weekday, time_of_day, medication } = body as {
+  const { weekday, time_of_day, medication, line_user_id, display_name } = body as {
     weekday: number;
     time_of_day: string;
     medication: string;
+    line_user_id: string;
+    display_name: string;
   };
+
+  if (!line_user_id) {
+    return NextResponse.json({ error: "Missing user info" }, { status: 400 });
+  }
 
   if (weekday < 0 || weekday > 6 || !time_of_day) {
     return NextResponse.json({ error: "Invalid input" }, { status: 400 });
@@ -126,8 +110,8 @@ export async function POST(req: NextRequest) {
     .from("ws_users")
     .upsert(
       {
-        line_user_id: profile.userId,
-        display_name: profile.displayName,
+        line_user_id,
+        display_name: display_name || "unknown",
         status: "active",
       },
       { onConflict: "line_user_id" }

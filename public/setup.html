@@ -88,7 +88,7 @@ var MEDS = [
   {value:"unspecified",label:"未選択"}
 ];
 
-var state = { weekday: 6, time: "21:00", medication: "unspecified", accessToken: null, existing: false };
+var state = { weekday: 6, time: "21:00", medication: "unspecified", accessToken: null, existing: false, userId: null, displayName: null };
 
 // 時刻セレクト生成
 var sel = document.getElementById("time-select");
@@ -158,14 +158,16 @@ liff.init({ liffId: LIFF_ID }).then(function() {
   state.accessToken = liff.getAccessToken();
 
   liff.getProfile().then(function(profile) {
+    state.userId = profile.userId;
+    state.displayName = profile.displayName;
     var nameEl = document.getElementById("user-name");
     nameEl.textContent = profile.displayName + " さん";
     nameEl.classList.remove("hidden");
-  });
 
-  // 既存スケジュール取得
-  fetch("/api/schedule", {
-    headers: { "Authorization": "Bearer " + state.accessToken }
+    // 既存スケジュール取得
+    return fetch("/api/schedule", {
+      headers: { "X-Line-UserId": profile.userId }
+    });
   }).then(function(r){return r.json();}).then(function(data) {
     if (data.schedule) {
       state.existing = true;
@@ -207,7 +209,9 @@ function handleSubmit() {
     body: JSON.stringify({
       weekday: state.weekday,
       time_of_day: state.time,
-      medication: state.medication
+      medication: state.medication,
+      line_user_id: state.userId,
+      display_name: state.displayName
     })
   }).then(function(r){return r.json();}).then(function(data) {
     if (data.ok) {
