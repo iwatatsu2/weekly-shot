@@ -142,9 +142,8 @@ async function generateNotifications(supabase: any, jstNow: Date, currentWeekday
     const [injH] = schedule.time_of_day.split(":").map(Number);
     const injM = parseInt(schedule.time_of_day.split(":")[1]) || 0;
 
-    // 当日通知: 今日が注射日なら通知キューを生成（時刻不問）
-    // cronは1日1回（朝6時JST）実行。send_atを即時にしてすぐ送信する
-    if (currentWeekday === injectionWeekday) {
+    // 当日通知: 曜日一致 & 設定時刻の「時」が現在時と一致
+    if (currentWeekday === injectionWeekday && _currentHour === injH) {
       await ensureLogAndQueue(
         supabase, user.id, jstNow, injH, injM, "on_day", jstNow
       );
