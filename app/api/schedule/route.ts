@@ -11,6 +11,10 @@ async function verifyLiffToken(
   });
   if (!res.ok) return null;
   const data = await res.json();
+  // LIFFトークンのclient_idがLINEログインチャネルIDと一致するか確認
+  if (data.client_id === "2010011578") return accessToken;
+  // Messaging APIチャネルIDでも許可
+  if (data.client_id === "2010011486") return accessToken;
   return data.client_id ? accessToken : null;
 }
 
@@ -86,7 +90,14 @@ export async function POST(req: NextRequest) {
 
   const verified = await verifyLiffToken(token);
   if (!verified) {
-    return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    // デバッグ: verify結果を返す
+    const debugRes = await fetch("https://api.line.me/oauth2/v2.1/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ access_token: token }),
+    });
+    const debugData = await debugRes.json();
+    return NextResponse.json({ error: "Invalid token", debug: debugData, status_code: debugRes.status }, { status: 401 });
   }
 
   const profile = await getLineProfile(token);
