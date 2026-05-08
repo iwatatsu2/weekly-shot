@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import liff from "@line/liff";
 
 type LiffState = {
   isReady: boolean;
@@ -24,14 +23,12 @@ export function useLiff() {
 
   useEffect(() => {
     const liffId = process.env.NEXT_PUBLIC_LIFF_ID || "2010011578-db7AxPzc";
-    if (!liffId) {
-      setState((prev) => ({ ...prev, error: "LIFF IDが設定されていません" }));
-      return;
-    }
 
-    liff
-      .init({ liffId })
-      .then(async () => {
+    import("@line/liff")
+      .then((liffModule) => liffModule.default)
+      .then(async (liff) => {
+        await liff.init({ liffId });
+
         if (!liff.isLoggedIn()) {
           liff.login();
           return;
@@ -49,7 +46,11 @@ export function useLiff() {
       })
       .catch((err: unknown) => {
         const errObj = err as Record<string, unknown>;
-        const detail = JSON.stringify({ code: errObj.code, message: errObj.message, name: errObj.name }, null, 2);
+        const detail = JSON.stringify(
+          { code: errObj.code, message: errObj.message, name: errObj.name },
+          null,
+          2
+        );
         setState((prev) => ({
           ...prev,
           error: `LIFF初期化エラー: ${detail} (ID: ${liffId})`,
