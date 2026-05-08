@@ -14,16 +14,24 @@ export async function POST(req: NextRequest) {
   const body = await req.text();
   const signature = req.headers.get("x-line-signature");
 
-  if (!signature || !verifySignature(body, signature)) {
-    return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
+  // パース
+  let parsed;
+  try {
+    parsed = JSON.parse(body);
+  } catch {
+    return NextResponse.json({ error: "Invalid body" }, { status: 400 });
   }
 
-  const parsed = JSON.parse(body);
   const events = parsed.events || [];
 
   // LINE検証リクエスト（eventsが空）
   if (events.length === 0) {
     return NextResponse.json({ ok: true });
+  }
+
+  // 署名検証（検証リクエスト以外）
+  if (!signature || !verifySignature(body, signature)) {
+    return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
 
   for (const event of events) {
