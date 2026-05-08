@@ -178,8 +178,15 @@ function showError(msg) {
 
 // LIFF初期化
 liff.init({ liffId: LIFF_ID }).then(function() {
+  // LINE内ブラウザでなければ案内表示
+  if (!liff.isInClient() && !liff.isLoggedIn()) {
+    showError("LINEアプリから開いてください。\nWeeklyShotのトーク画面で「体重」と送信すると、記録画面を開けます。");
+    return;
+  }
+
+  // LINE内だが未ログイン（通常ありえないが念のため）
   if (!liff.isLoggedIn()) {
-    liff.login({ redirectUri: "https://weekly-shot.vercel.app/diary.html" });
+    liff.login();
     return;
   }
 
