@@ -143,6 +143,14 @@ export default function Home() {
         <p className="text-xs text-gray-400 mt-3">
           友だち追加後、曜日と時刻を設定するだけで使えます
         </p>
+        <a
+          href="https://liff.line.me/2010011578-db7AxPzc/diary.html"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-block mt-4 text-sm text-blue-600 hover:underline"
+        >
+          体重を記録する →
+        </a>
       </section>
 
       {/* Footer links */}
