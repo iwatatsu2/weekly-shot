@@ -139,12 +139,25 @@ async function generateNotifications(supabase: any, jstNow: Date, currentWeekday
   for (const schedule of schedules) {
     const user = schedule.ws_users as { id: string; line_user_id: string };
     const injectionWeekday = schedule.weekday;
-    const [injH, injM] = schedule.time_of_day.split(":").map(Number);
+    const [injH] = schedule.time_of_day.split(":").map(Number);
+    const injM = parseInt(schedule.time_of_day.split(":")[1]) || 0;
 
-    // 当日通知のみ（Push節約: 前日通知は廃止）
+    // 当日通知: 曜日が一致 & 設定時刻の「時」が現在時と一致
+    // cronは毎時0分に実行されるので、例えば21:30設定なら21時のcronで通知生成
     if (currentWeekday === injectionWeekday && currentHour === injH) {
       await ensureLogAndQueue(
         supabase, user.id, jstNow, injH, injM, "on_day", jstNow
+      );
+    }
+
+    // 前日通知: 翌日が注射日 & 現在21時
+    const tomorrowWeekday = (currentWeekday + 1) % 7;
+    if (tomorrowWeekday === injectionWeekday && currentHour === 21) {
+      // 前日通知用のログは作らず、Replyメッセージとして通知キューに追加
+      const tomorrow = new Date(jstNow);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      await ensureLogAndQueue(
+        supabase, user.id, tomorrow, injH, injM, "pre_day", jstNow
       );
     }
   }
@@ -214,7 +227,23 @@ async function ensureLogAndQueue(supabase: any, userId: string, date: Date, hour
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function buildMessage(messageType: string, logId: string, supabase: any) {
-  // on_day のみ（pre_day, follow_upはPush節約のため廃止）
+  if (messageType === "pre_day") {
+    // 前日通知: 注射日の日付を取得
+    const { data: log } = await supabase
+      .from("ws_injection_logs")
+      .select("scheduled_at")
+      .eq("id", logId)
+      .single();
+    const injDate = log ? new Date(log.scheduled_at) : new Date();
+    // UTC→JST
+    const jstDate = new Date(injDate.getTime() + 9 * 60 * 60 * 1000);
+    return {
+      type: "text" as const,
+      text: messages.preDay(jstDate),
+    };
+  }
+
+  // on_day: 当日通知
   return {
     type: "template" as const,
     altText: "今日はGLP-1注射の日です",
