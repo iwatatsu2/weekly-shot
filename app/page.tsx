@@ -92,9 +92,9 @@ export default function Home() {
               <Image
                 src="/dr-iwatatsu.png"
                 alt="Dr.いわたつ"
-                width={56}
-                height={56}
-                className="rounded-full"
+                width={48}
+                height={64}
+                className="rounded-full object-cover"
               />
               <div className="flex flex-col gap-0.5">
                 <span className="text-[.65rem] text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full w-fit font-semibold">
