@@ -6,6 +6,13 @@ export default function Home() {
     <div className="min-h-screen">
       {/* Hero */}
       <section className="px-4 pt-16 pb-12 text-center">
+        <Image
+          src="/logo.png"
+          alt="WeeklyShot"
+          width={120}
+          height={120}
+          className="mx-auto mb-4"
+        />
         <h1 className="text-3xl font-bold mb-2">
           WeeklyShot
         </h1>
