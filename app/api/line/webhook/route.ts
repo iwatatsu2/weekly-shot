@@ -133,7 +133,7 @@ async function handleText(
   }
 
 if (["設定", "設定する"].includes(normalized)) {
-    const liffUrl = `https://liff.line.me/${process.env.NEXT_PUBLIC_LIFF_ID || "2010011578-db7AxPzc"}`;
+    const liffUrl = `https://liff.line.me/${process.env.NEXT_PUBLIC_LIFF_ID || "2010011578-db7AxPzc"}/setup.html`;
     await lineClient.replyMessage({
       replyToken,
       messages: [
