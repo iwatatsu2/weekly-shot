@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WeeklyShot - 注射スケジュール設定</title>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f9fafb; color: #374151; }
+.container { max-width: 28rem; margin: 0 auto; padding: 1rem; }
+h1 { text-align: center; font-size: 1.25rem; font-weight: bold; margin-top: 1.5rem; margin-bottom: .25rem; }
+.sub { text-align: center; font-size: .875rem; color: #6b7280; margin-bottom: 2rem; }
+.name { text-align: center; font-size: .875rem; color: #6b7280; margin-bottom: .25rem; }
+.label { display: block; font-size: .875rem; font-weight: 500; color: #374151; margin-bottom: .5rem; }
+.section { margin-bottom: 1.5rem; }
+.weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: .25rem; }
+.weekdays button, .meds button { padding: .75rem; border-radius: .5rem; font-size: .875rem; font-weight: 500; border: 1px solid #e5e7eb; background: #fff; color: #374151; cursor: pointer; transition: all .15s; }
+.weekdays button.active, .meds button.active { background: #2563eb; color: #fff; border-color: #2563eb; }
+select { width: 100%; padding: .75rem; border: 1px solid #e5e7eb; border-radius: .5rem; background: #fff; font-size: 1.125rem; }
+.meds { display: grid; grid-template-columns: repeat(2, 1fr); gap: .5rem; }
+.submit { width: 100%; padding: 1rem; background: #22c55e; color: #fff; font-weight: bold; font-size: 1.125rem; border: none; border-radius: .75rem; cursor: pointer; margin-top: .5rem; }
+.submit:disabled { opacity: .5; }
+.submit:hover:not(:disabled) { background: #16a34a; }
+.note { text-align: center; font-size: .75rem; color: #9ca3af; margin-top: 1rem; }
+.error { background: #fef2f2; border: 1px solid #fecaca; border-radius: .5rem; padding: .75rem; font-size: .875rem; color: #dc2626; margin-bottom: 1rem; }
+.loading { display: flex; align-items: center; justify-content: center; min-height: 100vh; color: #6b7280; }
+.done { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 1.5rem; text-align: center; }
+.done .icon { font-size: 3rem; margin-bottom: 1rem; }
+.done h1 { margin-bottom: .5rem; }
+.done .info { color: #4b5563; margin-bottom: 1.5rem; }
+.done .close { font-size: .75rem; color: #9ca3af; }
+.hidden { display: none; }
+</style>
+</head>
+<body>
+
+<div id="loading" class="loading">読み込み中...</div>
+
+<div id="error-view" class="hidden" style="display:none;">
+  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:1.5rem;text-align:center;">
+    <p id="error-msg" class="error"></p>
+    <p style="font-size:.75rem;color:#9ca3af;">LINEアプリ内からこのページを開いてください。</p>
+  </div>
+</div>
+
+<div id="form-view" class="hidden" style="display:none;">
+  <div class="container">
+    <h1>注射スケジュール設定</h1>
+    <p id="user-name" class="name hidden"></p>
+    <p class="sub">曜日と時刻を選ぶだけ。30秒で完了します。</p>
+    <div id="api-error" class="error hidden"></div>
+
+    <div class="section">
+      <span class="label">注射する曜日</span>
+      <div class="weekdays" id="weekday-btns"></div>
+    </div>
+
+    <div class="section">
+      <span class="label">注射する時刻</span>
+      <select id="time-select"></select>
+    </div>
+
+    <div class="section">
+      <span class="label">使用している薬剤</span>
+      <div class="meds" id="med-btns"></div>
+    </div>
+
+    <button class="submit" id="submit-btn" onclick="handleSubmit()">登録する</button>
+    <p class="note">※ 処方・用量変更は必ず主治医にご相談ください</p>
+  </div>
+</div>
+
+<div id="done-view" class="done hidden" style="display:none;">
+  <div class="icon">✅</div>
+  <h1 id="done-title">登録が完了しました</h1>
+  <p class="info" id="done-info"></p>
+  <p class="close">この画面を閉じてください</p>
+</div>
+
+<script>
+var LIFF_ID = "2010011578-db7AxPzc";
+var WEEKDAYS = ["日","月","火","水","木","金","土"];
+var MEDS = [
+  {value:"wegovy",label:"ウゴービ"},
+  {value:"zepbound",label:"ゼップバウンド"},
+  {value:"other_glp1",label:"その他GLP-1"},
+  {value:"unspecified",label:"未選択"}
+];
+
+var state = { weekday: 6, time: "21:00", medication: "unspecified", accessToken: null, existing: false };
+
+// 時刻セレクト生成
+var sel = document.getElementById("time-select");
+for (var i = 0; i < 48; i++) {
+  var h = Math.floor(i/2).toString().padStart(2,"0");
+  var m = i%2===0?"00":"30";
+  var opt = document.createElement("option");
+  opt.value = h+":"+m;
+  opt.textContent = h+":"+m;
+  if (opt.value === "21:00") opt.selected = true;
+  sel.appendChild(opt);
+}
+sel.onchange = function() { state.time = this.value; };
+
+// 曜日ボタン生成
+var wdDiv = document.getElementById("weekday-btns");
+WEEKDAYS.forEach(function(name, i) {
+  var btn = document.createElement("button");
+  btn.textContent = name;
+  btn.dataset.idx = i;
+  if (i === 6) btn.classList.add("active");
+  btn.onclick = function() {
+    state.weekday = parseInt(this.dataset.idx);
+    wdDiv.querySelectorAll("button").forEach(function(b){b.classList.remove("active");});
+    this.classList.add("active");
+  };
+  wdDiv.appendChild(btn);
+});
+
+// 薬剤ボタン生成
+var medDiv = document.getElementById("med-btns");
+MEDS.forEach(function(med) {
+  var btn = document.createElement("button");
+  btn.textContent = med.label;
+  btn.dataset.val = med.value;
+  if (med.value === "unspecified") btn.classList.add("active");
+  btn.onclick = function() {
+    state.medication = this.dataset.val;
+    medDiv.querySelectorAll("button").forEach(function(b){b.classList.remove("active");});
+    this.classList.add("active");
+  };
+  medDiv.appendChild(btn);
+});
+
+function show(id) {
+  ["loading","error-view","form-view","done-view"].forEach(function(v) {
+    var el = document.getElementById(v);
+    el.style.display = "none";
+    el.classList.add("hidden");
+  });
+  var target = document.getElementById(id);
+  target.style.display = "";
+  target.classList.remove("hidden");
+}
+
+function showError(msg) {
+  document.getElementById("error-msg").textContent = msg;
+  show("error-view");
+}
+
+// LIFF初期化
+liff.init({ liffId: LIFF_ID }).then(function() {
+  if (!liff.isLoggedIn()) {
+    liff.login();
+    return;
+  }
+  state.accessToken = liff.getAccessToken();
+
+  liff.getProfile().then(function(profile) {
+    var nameEl = document.getElementById("user-name");
+    nameEl.textContent = profile.displayName + " さん";
+    nameEl.classList.remove("hidden");
+  });
+
+  // 既存スケジュール取得
+  fetch("/api/schedule", {
+    headers: { "Authorization": "Bearer " + state.accessToken }
+  }).then(function(r){return r.json();}).then(function(data) {
+    if (data.schedule) {
+      state.existing = true;
+      state.weekday = data.schedule.weekday;
+      state.time = data.schedule.time_of_day.slice(0,5);
+      state.medication = data.schedule.medication;
+      // UIに反映
+      sel.value = state.time;
+      wdDiv.querySelectorAll("button").forEach(function(b){
+        b.classList.toggle("active", parseInt(b.dataset.idx) === state.weekday);
+      });
+      medDiv.querySelectorAll("button").forEach(function(b){
+        b.classList.toggle("active", b.dataset.val === state.medication);
+      });
+      document.getElementById("submit-btn").textContent = "設定を更新する";
+    }
+    show("form-view");
+  }).catch(function(err) {
+    show("form-view");
+  });
+
+}).catch(function(err) {
+  showError("LIFF初期化エラー: " + (err.code||"") + " " + (err.message||err));
+});
+
+function handleSubmit() {
+  if (!state.accessToken) return;
+  var btn = document.getElementById("submit-btn");
+  btn.disabled = true;
+  btn.textContent = "登録中...";
+  document.getElementById("api-error").classList.add("hidden");
+
+  fetch("/api/schedule", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + state.accessToken
+    },
+    body: JSON.stringify({
+      weekday: state.weekday,
+      time_of_day: state.time,
+      medication: state.medication
+    })
+  }).then(function(r){return r.json();}).then(function(data) {
+    if (data.ok) {
+      var d = new Date(data.next_injection);
+      var formatted = (d.getMonth()+1)+"/"+d.getDate()+"("+WEEKDAYS[d.getDay()]+") "+state.time;
+      document.getElementById("done-title").textContent = state.existing ? "設定を更新しました" : "登録が完了しました";
+      document.getElementById("done-info").innerHTML = "次回の注射予定: <b>"+formatted+"</b><br>毎週、前日と当日にLINEでお知らせします。";
+      show("done-view");
+    } else {
+      var errEl = document.getElementById("api-error");
+      errEl.textContent = data.error || "登録に失敗しました";
+      errEl.classList.remove("hidden");
+      btn.disabled = false;
+      btn.textContent = state.existing ? "設定を更新する" : "登録する";
+    }
+  }).catch(function(err) {
+    var errEl = document.getElementById("api-error");
+    errEl.textContent = err.message || "エラーが発生しました";
+    errEl.classList.remove("hidden");
+    btn.disabled = false;
+    btn.textContent = state.existing ? "設定を更新する" : "登録する";
+  });
+}
+</script>
+</body>
+</html>
