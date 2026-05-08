@@ -94,7 +94,7 @@ export default function Home() {
                 alt="Dr.いわたつ"
                 width={48}
                 height={64}
-                className="rounded-full object-cover"
+                className="rounded-lg object-cover"
               />
               <div className="flex flex-col gap-0.5">
                 <span className="text-[.65rem] text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full w-fit font-semibold">
@@ -156,7 +156,23 @@ export default function Home() {
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 bg-blue-600 text-white font-bold text-lg px-8 py-4 rounded-full shadow-lg hover:opacity-90 transition-opacity mt-4"
         >
-          体重を記録する
+          📊 体重を記録する
+        </a>
+        <a
+          href="https://liff.line.me/2010011578-BsNXGUao"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 bg-gray-700 text-white font-bold text-lg px-8 py-4 rounded-full shadow-lg hover:opacity-90 transition-opacity mt-4"
+        >
+          💉 注射スケジュール設定
+        </a>
+        <a
+          href="https://line.me/R/share?text=GLP-1注射の打ち忘れ防止に！無料のLINEリマインダー「WeeklyShot」%0Ahttps://weekly-shot.vercel.app"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 bg-white text-gray-700 font-bold text-base px-8 py-3 rounded-full shadow border border-gray-200 hover:bg-gray-50 transition-colors mt-4"
+        >
+          🔗 LINEで友達にシェア
         </a>
       </section>
 

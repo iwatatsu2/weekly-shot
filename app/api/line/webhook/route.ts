@@ -250,6 +250,19 @@ if (["通知オフ", "通知OFF"].includes(normalized)) {
     return;
   }
 
+  if (["LP", "lp", "リンク", "ホームページ", "HP"].includes(normalized)) {
+    await lineClient.replyMessage({
+      replyToken,
+      messages: [
+        {
+          type: "text",
+          text: "WeeklyShotのページはこちらです:\nhttps://weekly-shot.vercel.app",
+        },
+      ],
+    });
+    return;
+  }
+
   if (["ヘルプ", "help", "使い方"].includes(normalized)) {
     await lineClient.replyMessage({
       replyToken,
