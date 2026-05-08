@@ -109,16 +109,21 @@ export default function Home() {
               </span>
               <strong className="text-base">Dr.いわたつ</strong>
               <span className="text-xs text-gray-500">
-                糖尿病・肥満症専門医 / 医療×AI×実装
+                糖尿病・内分泌専門医 / 医療×AI×実装
               </span>
             </div>
             <div className="flex flex-col gap-2">
+              <a href="https://driwatatsu.readdy.co" target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-2 px-3 py-2.5 bg-gray-50 border border-gray-100 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                <span className="w-5 text-center">🏠</span>HP
+                <span className="ml-auto text-[.7rem] text-gray-400 font-normal">プロフィール・実績</span>
+              </a>
               <a href="https://note.com/dr_iwatatsu" target="_blank" rel="noopener noreferrer"
                 className="flex items-center gap-2 px-3 py-2.5 bg-gray-50 border border-gray-100 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
                 <span className="w-5 text-center">📖</span>note
                 <span className="ml-auto text-[.7rem] text-gray-400 font-normal">GLP-1の副作用対策など</span>
               </a>
-              <a href="https://x.com/dr_iwatatsu" target="_blank" rel="noopener noreferrer"
+              <a href="https://x.com/KenKyu1019799" target="_blank" rel="noopener noreferrer"
                 className="flex items-center gap-2 px-3 py-2.5 bg-gray-50 border border-gray-100 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
                 <span className="w-5 text-center">𝕏</span>X
                 <span className="ml-auto text-[.7rem] text-gray-400 font-normal">医療AIの最新情報</span>
