@@ -106,6 +106,63 @@ async function handleText(
   const normalized = text.trim();
   const supabase = getSupabase();
 
+  if (["打ちました", "打った", "注射した"].includes(normalized)) {
+    // テキストでの注射確認 — 最新のpendingログを確認済みに
+    const { data: user } = await supabase
+      .from("ws_users")
+      .select("id")
+      .eq("line_user_id", userId)
+      .single();
+
+    if (user) {
+      const { data: log } = await supabase
+        .from("ws_injection_logs")
+        .select("id, user_id")
+        .eq("user_id", user.id)
+        .eq("status", "pending")
+        .order("scheduled_at", { ascending: false })
+        .limit(1)
+        .single();
+
+      if (log) {
+        const now = new Date().toISOString();
+        await supabase
+          .from("ws_injection_logs")
+          .update({ status: "confirmed", confirmed_at: now })
+          .eq("id", log.id);
+
+        await supabase
+          .from("ws_notification_queue")
+          .update({ status: "cancelled" })
+          .eq("log_id", log.id)
+          .eq("status", "queued");
+      }
+
+      // 次回日付を取得
+      const { data: schedule } = await supabase
+        .from("ws_schedules")
+        .select("weekday, time_of_day")
+        .eq("user_id", user.id)
+        .eq("active", true)
+        .single();
+
+      if (schedule) {
+        const nextDate = getNextWeekDate(schedule.weekday);
+        await lineClient.replyMessage({
+          replyToken,
+          messages: [{ type: "text", text: messages.confirmed(nextDate, schedule.time_of_day, false) }],
+        });
+        return;
+      }
+    }
+
+    await lineClient.replyMessage({
+      replyToken,
+      messages: [{ type: "text", text: "お疲れさまでした👏" }],
+    });
+    return;
+  }
+
   if (["停止", "一時停止", "ストップ", "stop"].includes(normalized)) {
     await supabase
       .from("ws_users")
@@ -240,33 +297,11 @@ async function handlePostback(
   }
 
   if (action === "defer") {
-    // 「あとで」処理 → 2時間後に再通知をキューに追加
-    const { data: log } = await supabase
-      .from("ws_injection_logs")
-      .select("user_id, reminder_count")
-      .eq("id", logId)
-      .single();
-
-    if (log && log.reminder_count < 3) {
-      const sendAt = new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString();
-      await supabase.from("ws_notification_queue").insert({
-        user_id: log.user_id,
-        log_id: logId,
-        send_at: sendAt,
-        message_type: "follow_up",
-        status: "queued",
-      });
-
-      await supabase
-        .from("ws_injection_logs")
-        .update({ reminder_count: log.reminder_count + 1 })
-        .eq("id", logId);
-    }
-
+    // 「あとで」処理（Push節約: フォローアップ再通知は廃止、Reply応答のみ）
     await lineClient.replyMessage({
       replyToken,
       messages: [
-        { type: "text", text: "わかりました。2時間後にもう一度お知らせします。" },
+        { type: "text", text: "わかりました。準備ができたら「打ちました」とメッセージを送ってください。" },
       ],
     });
   }

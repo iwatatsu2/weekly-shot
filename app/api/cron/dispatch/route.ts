@@ -89,23 +89,7 @@ export async function GET(req: NextRequest) {
         .update({ status: "missed" })
         .eq("id", log.id);
 
-      // missed通知送信
-      const { data: user } = await supabase
-        .from("ws_users")
-        .select("line_user_id, status")
-        .eq("id", log.user_id)
-        .single();
-
-      if (user && user.status === "active") {
-        try {
-          await lineClient.pushMessage({
-            to: user.line_user_id,
-            messages: [{ type: "text", text: messages.missed() }],
-          });
-        } catch (err) {
-          console.error("Missed notification error:", err);
-        }
-      }
+      // missed通知はPush節約のため送信しない（ログ更新のみ）
 
       // follow_upキャンセル
       await supabase
@@ -141,19 +125,7 @@ async function generateNotifications(supabase: any, jstNow: Date, currentWeekday
     const injectionWeekday = schedule.weekday;
     const [injH, injM] = schedule.time_of_day.split(":").map(Number);
 
-    // 前日通知: 注射日の前日 21:00
-    const prevDay = (injectionWeekday - 1 + 7) % 7;
-    if (currentWeekday === prevDay && currentHour === 21) {
-      // 注射日の日付を計算
-      const injectionDate = new Date(jstNow);
-      injectionDate.setDate(injectionDate.getDate() + 1);
-
-      await ensureLogAndQueue(
-        supabase, user.id, injectionDate, injH, injM, "pre_day", jstNow
-      );
-    }
-
-    // 当日通知: 注射日の設定時刻
+    // 当日通知のみ（Push節約: 前日通知は廃止）
     if (currentWeekday === injectionWeekday && currentHour === injH) {
       await ensureLogAndQueue(
         supabase, user.id, jstNow, injH, injM, "on_day", jstNow
@@ -226,47 +198,7 @@ async function ensureLogAndQueue(supabase: any, userId: string, date: Date, hour
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function buildMessage(messageType: string, logId: string, supabase: any) {
-  if (messageType === "pre_day") {
-    const { data: log } = await supabase
-      .from("ws_injection_logs")
-      .select("scheduled_at")
-      .eq("id", logId)
-      .single();
-
-    const injDate = log ? new Date(log.scheduled_at) : new Date();
-    return { type: "text" as const, text: messages.preDay(injDate) };
-  }
-
-  if (messageType === "follow_up") {
-    const { data: log } = await supabase
-      .from("ws_injection_logs")
-      .select("reminder_count")
-      .eq("id", logId)
-      .single();
-
-    return {
-      type: "template" as const,
-      altText: "注射のリマインド",
-      template: {
-        type: "confirm" as const,
-        text: messages.followUp(log?.reminder_count ?? 1),
-        actions: [
-          {
-            type: "postback" as const,
-            label: "打ちました",
-            data: `action=confirm_injection&log_id=${logId}`,
-          },
-          {
-            type: "postback" as const,
-            label: "あとで",
-            data: `action=defer&log_id=${logId}`,
-          },
-        ],
-      },
-    };
-  }
-
-  // on_day
+  // on_day のみ（pre_day, follow_upはPush節約のため廃止）
   return {
     type: "template" as const,
     altText: "今日はGLP-1注射の日です",
