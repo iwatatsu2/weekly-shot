@@ -47,10 +47,12 @@ export function useLiff() {
           accessToken: liff.getAccessToken(),
         });
       })
-      .catch((err: Error) => {
+      .catch((err: unknown) => {
+        const errObj = err as Record<string, unknown>;
+        const detail = JSON.stringify({ code: errObj.code, message: errObj.message, name: errObj.name }, null, 2);
         setState((prev) => ({
           ...prev,
-          error: `LIFF初期化エラー: ${err.message} (ID: ${liffId})`,
+          error: `LIFF初期化エラー: ${detail} (ID: ${liffId})`,
         }));
       });
   }, []);
