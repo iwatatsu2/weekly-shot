@@ -223,7 +223,7 @@ if (["通知オフ", "通知OFF"].includes(normalized)) {
   }
 
   if (["設定", "設定する"].includes(normalized)) {
-    const liffUrl = `https://liff.line.me/${process.env.NEXT_PUBLIC_LIFF_ID || "2010011578-db7AxPzc"}/setup.html`;
+    const liffUrl = "https://liff.line.me/2010011578-BsNXGUao";
     await lineClient.replyMessage({
       replyToken,
       messages: [
