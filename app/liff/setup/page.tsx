@@ -25,7 +25,7 @@ type Schedule = {
 } | null;
 
 export default function SetupPage() {
-  const { isReady, error: liffError, accessToken } = useLiff();
+  const { isReady, error: liffError, accessToken, displayName } = useLiff();
   const [weekday, setWeekday] = useState(6); // 土曜
   const [time, setTime] = useState("21:00");
   const [medication, setMedication] = useState("unspecified");
@@ -34,6 +34,7 @@ export default function SetupPage() {
   const [nextDate, setNextDate] = useState("");
   const [existingSchedule, setExistingSchedule] = useState<Schedule>(null);
   const [fetching, setFetching] = useState(true);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   // 既存スケジュール取得
   useEffect(() => {
@@ -50,12 +51,14 @@ export default function SetupPage() {
           setMedication(data.schedule.medication);
         }
       })
+      .catch((err) => setApiError(err.message))
       .finally(() => setFetching(false));
   }, [isReady, accessToken]);
 
   const handleSubmit = async () => {
     if (!accessToken) return;
     setLoading(true);
+    setApiError(null);
     try {
       const res = await fetch("/api/schedule", {
         method: "POST",
@@ -75,7 +78,11 @@ export default function SetupPage() {
         const formatted = `${d.getMonth() + 1}/${d.getDate()}(${WEEKDAYS[d.getDay()]}) ${time}`;
         setNextDate(formatted);
         setDone(true);
+      } else {
+        setApiError(data.error || "登録に失敗しました");
       }
+    } catch (err) {
+      setApiError(err instanceof Error ? err.message : "エラーが発生しました");
     } finally {
       setLoading(false);
     }
@@ -83,8 +90,11 @@ export default function SetupPage() {
 
   if (liffError) {
     return (
-      <div className="flex items-center justify-center min-h-screen p-4">
-        <p className="text-red-500">{liffError}</p>
+      <div className="flex flex-col items-center justify-center min-h-screen p-6 text-center">
+        <p className="text-red-500 mb-4">{liffError}</p>
+        <p className="text-xs text-gray-400">
+          LINEアプリ内からこのページを開いてください。
+        </p>
       </div>
     );
   }
@@ -120,9 +130,20 @@ export default function SetupPage() {
         <h1 className="text-xl font-bold text-center mb-1 mt-6">
           注射スケジュール設定
         </h1>
+        {displayName && (
+          <p className="text-sm text-gray-500 text-center mb-1">
+            {displayName} さん
+          </p>
+        )}
         <p className="text-sm text-gray-500 text-center mb-8">
           曜日と時刻を選ぶだけ。30秒で完了します。
         </p>
+
+        {apiError && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4 text-sm text-red-600">
+            {apiError}
+          </div>
+        )}
 
         {/* 曜日選択 */}
         <div className="mb-6">
