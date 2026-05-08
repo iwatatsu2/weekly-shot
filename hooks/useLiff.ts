@@ -23,7 +23,7 @@ export function useLiff() {
   });
 
   useEffect(() => {
-    const liffId = process.env.NEXT_PUBLIC_LIFF_ID || "2010011578-6QjjLlVT";
+    const liffId = process.env.NEXT_PUBLIC_LIFF_ID || "2010011578-db7AxPzc";
     if (!liffId) {
       setState((prev) => ({ ...prev, error: "LIFF IDが設定されていません" }));
       return;
