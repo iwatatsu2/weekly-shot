@@ -126,7 +126,7 @@ export async function GET(req: NextRequest) {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function generateNotifications(supabase: any, jstNow: Date, currentWeekday: number, currentHour: number) {
+async function generateNotifications(supabase: any, jstNow: Date, currentWeekday: number, _currentHour: number) {
   // アクティブなスケジュールを持つユーザーを取得
   const { data: schedules } = await supabase
     .from("ws_schedules")
@@ -142,14 +142,13 @@ async function generateNotifications(supabase: any, jstNow: Date, currentWeekday
     const [injH] = schedule.time_of_day.split(":").map(Number);
     const injM = parseInt(schedule.time_of_day.split(":")[1]) || 0;
 
-    // 当日通知: 曜日が一致 & 設定時刻の「時」が現在時と一致
-    // cronは毎時0分に実行されるので、例えば21:30設定なら21時のcronで通知生成
-    if (currentWeekday === injectionWeekday && currentHour === injH) {
+    // 当日通知: 今日が注射日なら通知キューを生成（時刻不問）
+    // cronは1日1回（朝6時JST）実行。send_atを即時にしてすぐ送信する
+    if (currentWeekday === injectionWeekday) {
       await ensureLogAndQueue(
         supabase, user.id, jstNow, injH, injM, "on_day", jstNow
       );
     }
-
   }
 }
 
