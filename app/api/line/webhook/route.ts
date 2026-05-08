@@ -18,7 +18,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
 
-  const { events } = JSON.parse(body);
+  const parsed = JSON.parse(body);
+  const events = parsed.events || [];
+
+  // LINE検証リクエスト（eventsが空）
+  if (events.length === 0) {
+    return NextResponse.json({ ok: true });
+  }
 
   for (const event of events) {
     try {
