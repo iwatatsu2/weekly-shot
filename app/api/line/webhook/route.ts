@@ -31,13 +31,13 @@ export async function POST(req: NextRequest) {
 
   // 署名検証（TODO: 本番運用前に有効化）
   // 現在はChannel Secret検証の問題で無効化中
-  if (signature && false) {
-    const isValid = verifySignature(body, signature);
-    if (!isValid) {
-      console.error("Signature verification failed");
-      return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
-    }
-  }
+  // if (signature) {
+  //   const isValid = verifySignature(body, signature);
+  //   if (!isValid) {
+  //     console.error("Signature verification failed");
+  //     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
+  //   }
+  // }
 
   for (const event of events) {
     try {
