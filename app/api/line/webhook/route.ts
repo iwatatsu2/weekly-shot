@@ -223,7 +223,7 @@ if (["通知オフ", "通知OFF"].includes(normalized)) {
   }
 
   if (["設定", "設定する"].includes(normalized)) {
-    const liffUrl = `https://liff.line.me/${process.env.NEXT_PUBLIC_LIFF_ID || "2010011578-6QjjLlVT"}/setup.html`;
+    const liffUrl = `https://liff.line.me/${process.env.NEXT_PUBLIC_LIFF_ID || "2010011578-db7AxPzc"}/setup.html`;
     await lineClient.replyMessage({
       replyToken,
       messages: [
@@ -237,7 +237,7 @@ if (["通知オフ", "通知OFF"].includes(normalized)) {
   }
 
   if (["体重", "記録", "体重記録"].includes(normalized)) {
-    const liffUrl = `https://liff.line.me/${process.env.NEXT_PUBLIC_LIFF_ID || "2010011578-6QjjLlVT"}/diary.html`;
+    const liffUrl = `https://liff.line.me/${process.env.NEXT_PUBLIC_LIFF_ID || "2010011578-db7AxPzc"}/diary.html`;
     await lineClient.replyMessage({
       replyToken,
       messages: [

@@ -48,7 +48,7 @@ export function useLiff() {
   });
 
   useEffect(() => {
-    const liffId = process.env.NEXT_PUBLIC_LIFF_ID || "2010011578-6QjjLlVT";
+    const liffId = process.env.NEXT_PUBLIC_LIFF_ID || "2010011578-db7AxPzc";
 
     loadLiffSdk()
       .then(() => window.liff.init({ liffId }))
