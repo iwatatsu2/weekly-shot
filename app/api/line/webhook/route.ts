@@ -132,16 +132,7 @@ async function handleText(
     return;
   }
 
-  if (["テスト"].includes(normalized)) {
-    const testUrl = "https://weekly-shot.vercel.app/liff-test.html";
-    await lineClient.replyMessage({
-      replyToken,
-      messages: [{ type: "text", text: `テストページ:\n${testUrl}` }],
-    });
-    return;
-  }
-
-  if (["設定", "設定する"].includes(normalized)) {
+if (["設定", "設定する"].includes(normalized)) {
     const liffUrl = `https://liff.line.me/${process.env.NEXT_PUBLIC_LIFF_ID || "2010011578-db7AxPzc"}`;
     await lineClient.replyMessage({
       replyToken,
@@ -161,7 +152,7 @@ async function handleText(
       messages: [
         {
           type: "text",
-          text: `【WeeklyShot 使い方】\n・「設定」→ 注射スケジュールの登録・変更\n・「停止」→ 通知の一時停止\n・「再開」→ 通知の再開\n\n注射日の前日と当日にLINEでお知らせします。`,
+          text: `【WeeklyShot 使い方】\n・「設定」→ 注射スケジュールの登録・変更\n・「停止」→ 通知の一時停止\n・「再開」→ 通知の再開\n\n注射日の前日と当日にLINEでお知らせします。\n\n👨‍⚕️ 開発者: Dr.いわたつ（内分泌専門医）\n📖 note: https://note.com/dr_iwatatsu\n𝕏 X: https://x.com/dr_iwatatsu`,
         },
       ],
     });

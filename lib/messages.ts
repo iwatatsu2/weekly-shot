@@ -1,4 +1,5 @@
-const NOTE_BASE_URL = process.env.NOTE_BASE_URL || "https://note.com/iwatatsu";
+const NOTE_BASE_URL = process.env.NOTE_BASE_URL || "https://note.com/dr_iwatatsu";
+const X_URL = "https://x.com/dr_iwatatsu";
 
 function formatDate(date: Date): string {
   const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
@@ -18,7 +19,10 @@ export const messages = {
 
 本サービスは記録補助ツールであり、医療行為ではありません。処方・用量変更は必ず主治医にご相談ください。
 
-下のメニューから「設定する」を押して、注射する曜日と時刻を登録してください(30秒で完了します)。`,
+下のメニューから「設定する」を押して、注射する曜日と時刻を登録してください(30秒で完了します)。
+
+📖 GLP-1注射のコツや副作用対策:
+${NOTE_BASE_URL}`,
 
   preDay(injectionDate: Date): string {
     return `明日(${formatDate(injectionDate)})はGLP-1注射の日です💉
@@ -47,7 +51,10 @@ export const messages = {
     return `昨日の注射、確認できませんでした。
 打ち忘れた場合の対応は人によって異なるため、不明な点は主治医にご相談ください。
 
-(次回の予定はそのまま継続されます)`;
+(次回の予定はそのまま継続されます)
+
+📖 打ち忘れたときの対処法:
+${NOTE_BASE_URL}`;
   },
 
   followUp(count: number): string {

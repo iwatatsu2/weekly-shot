@@ -99,6 +99,45 @@ export default function Home() {
         </a>
       </section>
 
+      {/* Developer Profile */}
+      <section className="px-4 py-12">
+        <div className="max-w-md mx-auto">
+          <div className="bg-white border border-gray-200 rounded-xl p-5">
+            <div className="flex flex-col gap-0.5 mb-4">
+              <span className="text-[.65rem] text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full w-fit font-semibold">
+                開発者
+              </span>
+              <strong className="text-base">Dr.いわたつ</strong>
+              <span className="text-xs text-gray-500">
+                糖尿病・肥満症専門医 / 医療×AI×実装
+              </span>
+            </div>
+            <div className="flex flex-col gap-2">
+              <a href="https://note.com/dr_iwatatsu" target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-2 px-3 py-2.5 bg-gray-50 border border-gray-100 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                <span className="w-5 text-center">📖</span>note
+                <span className="ml-auto text-[.7rem] text-gray-400 font-normal">GLP-1の副作用対策など</span>
+              </a>
+              <a href="https://x.com/dr_iwatatsu" target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-2 px-3 py-2.5 bg-gray-50 border border-gray-100 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                <span className="w-5 text-center">𝕏</span>X
+                <span className="ml-auto text-[.7rem] text-gray-400 font-normal">医療AIの最新情報</span>
+              </a>
+              <a href="https://www.instagram.com/dr.iwatatsu/" target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-2 px-3 py-2.5 bg-gray-50 border border-gray-100 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                <span className="w-5 text-center">📸</span>Instagram
+                <span className="ml-auto text-[.7rem] text-gray-400 font-normal">ライフスタイル</span>
+              </a>
+              <a href="https://medapp-market.vercel.app/" target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-2 px-3 py-2.5 bg-gray-50 border border-gray-100 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                <span className="w-5 text-center">💊</span>MedApp Market
+                <span className="ml-auto text-[.7rem] text-gray-400 font-normal">医療アプリまとめ</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Footer links */}
       <div className="px-4 py-6 text-center text-xs text-gray-400 space-x-4">
         <Link href="/terms" className="hover:underline">

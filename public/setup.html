@@ -31,6 +31,16 @@ select { width: 100%; padding: .75rem; border: 1px solid #e5e7eb; border-radius:
 .done .info { color: #4b5563; margin-bottom: 1.5rem; }
 .done .close { font-size: .75rem; color: #9ca3af; }
 .hidden { display: none; }
+.profile-card { background: #fff; border: 1px solid #e5e7eb; border-radius: .75rem; padding: 1.25rem; margin: 1.5rem 0 1rem; text-align: left; width: 100%; max-width: 24rem; }
+.profile-header { display: flex; flex-direction: column; gap: .15rem; margin-bottom: .75rem; }
+.profile-badge { font-size: .65rem; color: #2563eb; background: #eff6ff; padding: .15rem .5rem; border-radius: 1rem; width: fit-content; font-weight: 600; }
+.profile-header strong { font-size: 1rem; }
+.profile-desc { font-size: .75rem; color: #6b7280; }
+.profile-links { display: flex; flex-direction: column; gap: .5rem; }
+.profile-link { display: flex; align-items: center; gap: .5rem; padding: .6rem .75rem; background: #f9fafb; border: 1px solid #f3f4f6; border-radius: .5rem; text-decoration: none; color: #374151; font-size: .875rem; font-weight: 500; transition: background .15s; }
+.profile-link:hover { background: #f3f4f6; }
+.link-icon { font-size: 1rem; width: 1.5rem; text-align: center; }
+.link-sub { margin-left: auto; font-size: .7rem; color: #9ca3af; font-weight: 400; }
 </style>
 </head>
 <body>
@@ -75,6 +85,29 @@ select { width: 100%; padding: .75rem; border: 1px solid #e5e7eb; border-radius:
   <div class="icon">✅</div>
   <h1 id="done-title">登録が完了しました</h1>
   <p class="info" id="done-info"></p>
+
+  <div class="profile-card">
+    <div class="profile-header">
+      <span class="profile-badge">開発者</span>
+      <strong>Dr.いわたつ</strong>
+      <span class="profile-desc">糖尿病・肥満症専門医 / 医療×AI×実装</span>
+    </div>
+    <div class="profile-links">
+      <a href="https://note.com/dr_iwatatsu" class="profile-link" target="_blank">
+        <span class="link-icon">📖</span>note<span class="link-sub">GLP-1の副作用対策など</span>
+      </a>
+      <a href="https://x.com/dr_iwatatsu" class="profile-link" target="_blank">
+        <span class="link-icon">𝕏</span>X<span class="link-sub">医療AIの最新情報</span>
+      </a>
+      <a href="https://www.instagram.com/dr.iwatatsu/" class="profile-link" target="_blank">
+        <span class="link-icon">📸</span>Instagram<span class="link-sub">ライフスタイル</span>
+      </a>
+      <a href="https://medapp-market.vercel.app/" class="profile-link" target="_blank">
+        <span class="link-icon">💊</span>MedApp Market<span class="link-sub">医療アプリまとめ</span>
+      </a>
+    </div>
+  </div>
+
   <p class="close">この画面を閉じてください</p>
 </div>
 
@@ -222,7 +255,7 @@ function handleSubmit() {
       show("done-view");
     } else {
       var errEl = document.getElementById("api-error");
-      errEl.textContent = JSON.stringify(data);
+      errEl.textContent = data.error || "登録に失敗しました";
       errEl.classList.remove("hidden");
       btn.disabled = false;
       btn.textContent = state.existing ? "設定を更新する" : "登録する";
