@@ -26,34 +26,23 @@ export async function GET(req: NextRequest) {
   let processed = 0;
   let errors = 0;
 
-  // TEMP ONE-TIME: 古いゴミデータをクリア → generateで新規作成させる
-  await supabase.from("ws_notification_queue").delete().neq("status", "___never___");
-  await supabase.from("ws_injection_logs").delete().neq("status", "___never___");
-
   // 1. 注射ログ・通知キュー生成（当日通知）
   await generateNotifications(supabase, jstNow, currentWeekday, currentHour);
 
-  // generateの後にキューを確認（デバッグ）
-  const { data: queueAfterGen } = await supabase.from("ws_notification_queue").select("*");
-  debugErrors.push("After generate: queue=" + JSON.stringify(queueAfterGen));
-
   // 2. キュー送信: send_at <= now かつ status = 'queued'
-  const { data: queue, error: queueFetchError } = await supabase
+  const { data: queue } = await supabase
     .from("ws_notification_queue")
     .select("*")
     .eq("status", "queued")
     .lte("send_at", now.toISOString())
     .limit(100);
 
-  debugErrors.push("Queue fetch: count=" + (queue?.length ?? "null") + " error=" + JSON.stringify(queueFetchError));
-
   if (queue) {
     for (const item of queue) {
       try {
-        // ユーザー情報を別途取得
         const { data: user } = await supabase
           .from("ws_users")
-          .select("line_user_id, status, push_enabled, last_active_at")
+          .select("line_user_id, status, push_enabled")
           .eq("id", item.user_id)
           .single();
 
@@ -65,8 +54,7 @@ export async function GET(req: NextRequest) {
           continue;
         }
 
-        const message = buildMessage(item.message_type, item.log_id, supabase);
-        const messageText = await message;
+        const messageText = await buildMessage(item.message_type, item.log_id, supabase);
 
         await lineClient.pushMessage({
           to: user.line_user_id,
@@ -105,9 +93,6 @@ export async function GET(req: NextRequest) {
         .update({ status: "missed" })
         .eq("id", log.id);
 
-      // missed通知はPush節約のため送信しない（ログ更新のみ）
-
-      // follow_upキャンセル
       await supabase
         .from("ws_notification_queue")
         .update({ status: "cancelled" })
@@ -116,48 +101,17 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // デバッグ: スケジュール一覧
-  const { data: debugSchedules } = await supabase
-    .from("ws_schedules")
-    .select("weekday, time_of_day, active, ws_users!inner(status)")
-    .eq("active", true);
-
-  // デバッグ: キュー状態（全status）
-  const { data: debugQueue } = await supabase
-    .from("ws_notification_queue")
-    .select("status, message_type, send_at, sent_at, created_at, user_id, log_id")
-    .order("created_at", { ascending: false })
-    .limit(10);
-
-  // デバッグ: ログ状態
-  const { data: debugLogs } = await supabase
-    .from("ws_injection_logs")
-    .select("status, scheduled_at, created_at")
-    .order("created_at", { ascending: false })
-    .limit(5);
-
   return NextResponse.json({
     ok: true,
     processed,
     errors,
     missed: missedLogs?.length ?? 0,
     timestamp: now.toISOString(),
-    debug: {
-      jstWeekday: currentWeekday,
-      jstHour: currentHour,
-      schedules: debugSchedules,
-      queue: debugQueue,
-      logs: debugLogs,
-      insertErrors: debugErrors,
-    },
   });
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-let debugErrors: string[] = [];
-
-async function generateNotifications(supabase: any, jstNow: Date, currentWeekday: number, _currentHour: number) {
-  // アクティブなスケジュールを持つユーザーを取得
+async function generateNotifications(supabase: any, jstNow: Date, currentWeekday: number, currentHour: number) {
   const { data: schedules } = await supabase
     .from("ws_schedules")
     .select("*, ws_users!inner(id, line_user_id, status)")
@@ -172,21 +126,16 @@ async function generateNotifications(supabase: any, jstNow: Date, currentWeekday
     const [injH] = schedule.time_of_day.split(":").map(Number);
     const injM = parseInt(schedule.time_of_day.split(":")[1]) || 0;
 
-    // 当日通知: 曜日一致 & 設定時刻の「時」が現在時と一致
-    if (currentWeekday === injectionWeekday && _currentHour === injH) {
-      await ensureLogAndQueue(
-        supabase, user.id, jstNow, injH, injM, "on_day", jstNow
-      );
+    if (currentWeekday === injectionWeekday && currentHour === injH) {
+      await ensureLogAndQueue(supabase, user.id, jstNow, injH, injM, "on_day", jstNow);
     }
   }
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function ensureLogAndQueue(supabase: any, userId: string, date: Date, hour: number, minute: number, messageType: string, jstNow: Date) {
-  // scheduled_atを生成（JST基準）
   const scheduledAt = new Date(date);
   scheduledAt.setHours(hour, minute, 0, 0);
-  // JSTをUTCに変換
   const scheduledAtUtc = new Date(scheduledAt.getTime() - 9 * 60 * 60 * 1000);
 
   // 既にこの予定のログがあるか確認（±1時間で厳密にマッチ）
@@ -231,20 +180,18 @@ async function ensureLogAndQueue(supabase: any, userId: string, date: Date, hour
   if (existingQueue && existingQueue.length > 0) return;
 
   // キューに追加（即時送信: send_at = now）
-  const sendAt = new Date(jstNow.getTime() - 9 * 60 * 60 * 1000); // UTC
-  const { data: insertedQueue, error: queueError } = await supabase.from("ws_notification_queue").insert({
+  const sendAt = new Date(jstNow.getTime() - 9 * 60 * 60 * 1000);
+  await supabase.from("ws_notification_queue").insert({
     user_id: userId,
     log_id: logId,
     send_at: sendAt.toISOString(),
     message_type: messageType,
     status: "queued",
-  }).select("id").single();
-  debugErrors.push("Queue insert result: " + JSON.stringify({ insertedQueue, queueError, userId, logId }));
+  });
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function buildMessage(messageType: string, logId: string, supabase: any) {
-  // 当日通知
   return {
     type: "template" as const,
     altText: "今日はGLP-1注射の日です",
