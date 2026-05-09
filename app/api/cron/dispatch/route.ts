@@ -122,12 +122,12 @@ export async function GET(req: NextRequest) {
     .select("weekday, time_of_day, active, ws_users!inner(status)")
     .eq("active", true);
 
-  // デバッグ: キュー状態
+  // デバッグ: キュー状態（全status）
   const { data: debugQueue } = await supabase
     .from("ws_notification_queue")
-    .select("status, message_type, send_at, sent_at, created_at")
+    .select("status, message_type, send_at, sent_at, created_at, user_id, log_id")
     .order("created_at", { ascending: false })
-    .limit(5);
+    .limit(10);
 
   // デバッグ: ログ状態
   const { data: debugLogs } = await supabase
