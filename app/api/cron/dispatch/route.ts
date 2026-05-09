@@ -26,10 +26,6 @@ export async function GET(req: NextRequest) {
   let processed = 0;
   let errors = 0;
 
-  // TEMP: 古いログ・キューをクリア（デバッグ用、後で削除）
-  await supabase.from("ws_notification_queue").delete().neq("id", "00000000-0000-0000-0000-000000000000");
-  await supabase.from("ws_injection_logs").delete().neq("id", "00000000-0000-0000-0000-000000000000");
-
   // 1. 注射ログ・通知キュー生成（当日通知）
   await generateNotifications(supabase, jstNow, currentWeekday, currentHour);
 
