@@ -30,39 +30,31 @@ export async function GET(req: NextRequest) {
   await generateNotifications(supabase, jstNow, currentWeekday, currentHour);
 
   // 2. キュー送信: send_at <= now かつ status = 'queued'
-  const { data: queue } = await supabase
+  const { data: queue, error: queueFetchError } = await supabase
     .from("ws_notification_queue")
-    .select("*, ws_users!inner(line_user_id, status, push_enabled, last_active_at)")
+    .select("*")
     .eq("status", "queued")
     .lte("send_at", now.toISOString())
     .limit(100);
 
+  debugErrors.push("Queue fetch: count=" + (queue?.length ?? "null") + " error=" + JSON.stringify(queueFetchError));
+
   if (queue) {
     for (const item of queue) {
       try {
-        const user = item.ws_users as { line_user_id: string; status: string; push_enabled: boolean; last_active_at: string | null };
+        // ユーザー情報を別途取得
+        const { data: user } = await supabase
+          .from("ws_users")
+          .select("line_user_id, status, push_enabled, last_active_at")
+          .eq("id", item.user_id)
+          .single();
 
-        // ユーザーが非アクティブ or Push OFF → スキップ
-        if (user.status !== "active" || user.push_enabled === false) {
+        if (!user || user.status !== "active" || user.push_enabled === false) {
           await supabase
             .from("ws_notification_queue")
             .update({ status: "cancelled" })
             .eq("id", item.id);
           continue;
-        }
-
-        // スマートスキップ: 今日既にメッセージを送ってきたユーザーはPush不要
-        if (user.last_active_at) {
-          const lastActive = new Date(user.last_active_at);
-          const todayStart = new Date(jstNow);
-          todayStart.setHours(0, 0, 0, 0);
-          if (lastActive >= todayStart) {
-            await supabase
-              .from("ws_notification_queue")
-              .update({ status: "cancelled" })
-              .eq("id", item.id);
-            continue;
-          }
         }
 
         const message = buildMessage(item.message_type, item.log_id, supabase);
