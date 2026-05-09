@@ -186,18 +186,16 @@ async function ensureLogAndQueue(supabase: any, userId: string, date: Date, hour
   // JSTをUTCに変換
   const scheduledAtUtc = new Date(scheduledAt.getTime() - 9 * 60 * 60 * 1000);
 
-  // 既にこの予定のログがあるか確認
-  const startOfDay = new Date(scheduledAtUtc);
-  startOfDay.setHours(startOfDay.getHours() - 12);
-  const endOfDay = new Date(scheduledAtUtc);
-  endOfDay.setHours(endOfDay.getHours() + 12);
+  // 既にこの予定のログがあるか確認（±1時間で厳密にマッチ）
+  const startRange = new Date(scheduledAtUtc.getTime() - 60 * 60 * 1000);
+  const endRange = new Date(scheduledAtUtc.getTime() + 60 * 60 * 1000);
 
   const { data: existingLog } = await supabase
     .from("ws_injection_logs")
     .select("id")
     .eq("user_id", userId)
-    .gte("scheduled_at", startOfDay.toISOString())
-    .lte("scheduled_at", endOfDay.toISOString())
+    .gte("scheduled_at", startRange.toISOString())
+    .lte("scheduled_at", endRange.toISOString())
     .limit(1);
 
   let logId: string;
