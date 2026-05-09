@@ -116,12 +116,23 @@ export async function GET(req: NextRequest) {
     }
   }
 
+  // デバッグ: スケジュール一覧
+  const { data: debugSchedules } = await supabase
+    .from("ws_schedules")
+    .select("weekday, time_of_day, active, ws_users!inner(status)")
+    .eq("active", true);
+
   return NextResponse.json({
     ok: true,
     processed,
     errors,
     missed: missedLogs?.length ?? 0,
     timestamp: now.toISOString(),
+    debug: {
+      jstWeekday: currentWeekday,
+      jstHour: currentHour,
+      schedules: debugSchedules,
+    },
   });
 }
 
