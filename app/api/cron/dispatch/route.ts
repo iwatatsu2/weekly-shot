@@ -26,8 +26,16 @@ export async function GET(req: NextRequest) {
   let processed = 0;
   let errors = 0;
 
+  // TEMP ONE-TIME: 古いゴミデータをクリア → generateで新規作成させる
+  await supabase.from("ws_notification_queue").delete().neq("status", "___never___");
+  await supabase.from("ws_injection_logs").delete().neq("status", "___never___");
+
   // 1. 注射ログ・通知キュー生成（当日通知）
   await generateNotifications(supabase, jstNow, currentWeekday, currentHour);
+
+  // generateの後にキューを確認（デバッグ）
+  const { data: queueAfterGen } = await supabase.from("ws_notification_queue").select("*");
+  debugErrors.push("After generate: queue=" + JSON.stringify(queueAfterGen));
 
   // 2. キュー送信: send_at <= now かつ status = 'queued'
   const { data: queue, error: queueFetchError } = await supabase
