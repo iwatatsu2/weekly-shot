@@ -236,16 +236,14 @@ async function ensureLogAndQueue(supabase: any, userId: string, date: Date, hour
 
   // キューに追加（即時送信: send_at = now）
   const sendAt = new Date(jstNow.getTime() - 9 * 60 * 60 * 1000); // UTC
-  const { error: queueError } = await supabase.from("ws_notification_queue").insert({
+  const { data: insertedQueue, error: queueError } = await supabase.from("ws_notification_queue").insert({
     user_id: userId,
     log_id: logId,
     send_at: sendAt.toISOString(),
     message_type: messageType,
     status: "queued",
-  });
-  if (queueError) {
-    debugErrors.push("Queue insert: " + JSON.stringify(queueError));
-  }
+  }).select("id").single();
+  debugErrors.push("Queue insert result: " + JSON.stringify({ insertedQueue, queueError, userId, logId }));
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
