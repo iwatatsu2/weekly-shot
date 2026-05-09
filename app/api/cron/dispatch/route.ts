@@ -122,6 +122,20 @@ export async function GET(req: NextRequest) {
     .select("weekday, time_of_day, active, ws_users!inner(status)")
     .eq("active", true);
 
+  // デバッグ: キュー状態
+  const { data: debugQueue } = await supabase
+    .from("ws_notification_queue")
+    .select("status, message_type, send_at, sent_at, created_at")
+    .order("created_at", { ascending: false })
+    .limit(5);
+
+  // デバッグ: ログ状態
+  const { data: debugLogs } = await supabase
+    .from("ws_injection_logs")
+    .select("status, scheduled_at, created_at")
+    .order("created_at", { ascending: false })
+    .limit(5);
+
   return NextResponse.json({
     ok: true,
     processed,
@@ -132,6 +146,8 @@ export async function GET(req: NextRequest) {
       jstWeekday: currentWeekday,
       jstHour: currentHour,
       schedules: debugSchedules,
+      queue: debugQueue,
+      logs: debugLogs,
     },
   });
 }
