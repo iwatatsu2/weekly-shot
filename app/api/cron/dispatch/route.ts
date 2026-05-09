@@ -148,11 +148,14 @@ export async function GET(req: NextRequest) {
       schedules: debugSchedules,
       queue: debugQueue,
       logs: debugLogs,
+      insertErrors: debugErrors,
     },
   });
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
+let debugErrors: string[] = [];
+
 async function generateNotifications(supabase: any, jstNow: Date, currentWeekday: number, _currentHour: number) {
   // アクティブなスケジュールを持つユーザーを取得
   const { data: schedules } = await supabase
@@ -229,13 +232,16 @@ async function ensureLogAndQueue(supabase: any, userId: string, date: Date, hour
 
   // キューに追加（即時送信: send_at = now）
   const sendAt = new Date(jstNow.getTime() - 9 * 60 * 60 * 1000); // UTC
-  await supabase.from("ws_notification_queue").insert({
+  const { error: queueError } = await supabase.from("ws_notification_queue").insert({
     user_id: userId,
     log_id: logId,
     send_at: sendAt.toISOString(),
     message_type: messageType,
     status: "queued",
   });
+  if (queueError) {
+    debugErrors.push("Queue insert: " + JSON.stringify(queueError));
+  }
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
