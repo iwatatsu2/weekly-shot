@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WeeklyShot リール</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;font-family:'Noto Sans JP',sans-serif;overflow:hidden}
+.comp{position:relative;width:1080px;height:1920px;overflow:hidden;background:#0f172a;transform-origin:top center}
+.scene{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:60px;opacity:0}
+
+/* Scene 1: Hook */
+.s1-bg{position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(180deg,#0f172a 0%,#1a1a2e 50%,#16213e 100%)}
+.s1-emoji{font-size:120px;margin-bottom:40px;opacity:0}
+.s1-main{font-size:88px;font-weight:900;color:#fff;text-align:center;line-height:1.3;opacity:0}
+.s1-main em{font-style:normal;color:#f87171}
+.s1-sub{font-size:36px;color:#94a3b8;margin-top:30px;text-align:center;opacity:0}
+
+/* Scene 2: 通知画面 */
+.s2-bg{position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(180deg,#0f172a 0%,#1e3a5f 100%)}
+.s2-label{font-size:40px;font-weight:700;color:#22c55e;margin-bottom:32px;text-align:center;opacity:0}
+.s2-phone{border-radius:36px;overflow:hidden;box-shadow:0 12px 60px rgba(0,0,0,.6);border:3px solid rgba(255,255,255,.12);opacity:0;transform:scale(0.8)}
+.s2-phone img{display:block;width:420px;height:auto;object-fit:contain}
+.s2-caption{font-size:36px;color:#fff;font-weight:700;text-align:center;margin-top:40px;opacity:0;line-height:1.5}
+.s2-caption em{font-style:normal;color:#22c55e}
+
+/* Scene 3: LINEトーク */
+.s3-bg{position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(180deg,#0f172a 0%,#162447 100%)}
+.s3-label{font-size:40px;font-weight:700;color:#60a5fa;margin-bottom:32px;text-align:center;opacity:0}
+.s3-phone{border-radius:36px;overflow:hidden;box-shadow:0 12px 60px rgba(0,0,0,.6);border:3px solid rgba(255,255,255,.12);opacity:0;transform:translateY(80px)}
+.s3-phone img{display:block;width:420px;height:auto;object-fit:contain}
+.s3-badges{display:flex;gap:16px;margin-top:36px;opacity:0}
+.s3-badge{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:12px;padding:14px 24px;font-size:28px;font-weight:700;color:#fff}
+
+/* Scene 4: 体重記録 */
+.s4-bg{position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(180deg,#0f172a 0%,#1e293b 100%)}
+.s4-label{font-size:40px;font-weight:700;color:#a78bfa;margin-bottom:32px;text-align:center;opacity:0}
+.s4-phone{border-radius:36px;overflow:hidden;box-shadow:0 12px 60px rgba(0,0,0,.6);border:3px solid rgba(255,255,255,.12);opacity:0;transform:scale(0.8)}
+.s4-phone img{display:block;width:420px;height:auto;object-fit:contain}
+.s4-features{display:flex;flex-direction:column;gap:16px;margin-top:36px;opacity:0}
+.s4-feat{display:flex;align-items:center;gap:16px;font-size:32px;font-weight:700;color:#fff}
+.s4-feat span:first-child{font-size:36px}
+
+/* Scene 5: まとめ */
+.s5-bg{position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(180deg,#0f172a 0%,#1e293b 50%,#312e81 100%)}
+.s5-logo{display:flex;align-items:center;gap:20px;margin-bottom:48px;opacity:0}
+.s5-logo img{width:72px;height:72px;border-radius:16px}
+.s5-logo span{font-size:52px;font-weight:900;color:#fff}
+.s5-list{width:100%;max-width:800px}
+.s5-item{display:flex;align-items:center;gap:20px;padding:28px 36px;margin-bottom:16px;background:rgba(255,255,255,.06);border-left:4px solid #22c55e;border-radius:0 12px 12px 0;opacity:0;transform:translateX(-40px)}
+.s5-item span:first-child{font-size:36px}
+.s5-item span:last-child{font-size:36px;font-weight:700;color:#fff}
+.s5-url{font-size:38px;color:#22c55e;font-weight:900;margin-top:40px;text-align:center;opacity:0}
+.s5-badge-text{font-size:28px;color:#94a3b8;margin-top:16px;text-align:center;opacity:0}
+
+/* Scene 6: CTA */
+.s6-bg{position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(180deg,#0f172a 0%,#1e293b 100%)}
+.s6-avatar{width:200px;height:auto;object-fit:contain;filter:drop-shadow(0 8px 32px rgba(0,0,0,.5));opacity:0;transform:scale(0.5)}
+.s6-name{font-size:52px;font-weight:900;color:#fff;margin-top:20px;opacity:0}
+.s6-title{font-size:28px;color:#94a3b8;text-align:center;margin-top:8px;opacity:0}
+.s6-btn{margin-top:32px;background:linear-gradient(135deg,#22c55e,#16a34a);padding:18px 56px;border-radius:50px;font-size:40px;font-weight:900;color:#fff;box-shadow:0 8px 32px rgba(34,197,94,.4);opacity:0;transform:scale(0.8)}
+.s6-actions{display:flex;gap:40px;margin-top:28px;opacity:0}
+.s6-action{font-size:26px;color:#94a3b8}
+</style>
+</head>
+<body>
+<div class="comp" id="comp">
+
+  <!-- Scene 1: Hook -->
+  <div class="scene" id="s1">
+    <div class="s1-bg"></div>
+    <div class="s1-emoji" id="s1-emoji">💉</div>
+    <div class="s1-main" id="s1-main">週1注射<br><em>忘れてない？</em></div>
+    <div class="s1-sub" id="s1-sub">ウゴービ・ゼップバウンド<br>打ち忘れ防止LINEリマインダー</div>
+  </div>
+
+  <!-- Scene 2: 通知画面 -->
+  <div class="scene" id="s2">
+    <div class="s2-bg"></div>
+    <div class="s2-label" id="s2-label">🔔 注射日にLINEで自動通知</div>
+    <div class="s2-phone" id="s2-phone">
+      <img src="IMG_4090.jpg" alt="ロック画面通知">
+    </div>
+    <div class="s2-caption" id="s2-caption">設定した曜日・時刻に<br><em>ロック画面に通知</em>が届く</div>
+  </div>
+
+  <!-- Scene 3: LINEトーク -->
+  <div class="scene" id="s3">
+    <div class="s3-bg"></div>
+    <div class="s3-label" id="s3-label">✅ ボタン押すだけで記録完了</div>
+    <div class="s3-phone" id="s3-phone">
+      <img src="IMG_4093.jpg" alt="LINEトーク">
+    </div>
+    <div class="s3-badges" id="s3-badges">
+      <div class="s3-badge">「打ちました」</div>
+      <div class="s3-badge">次回予定表示</div>
+    </div>
+  </div>
+
+  <!-- Scene 4: 体重記録 -->
+  <div class="scene" id="s4">
+    <div class="s4-bg"></div>
+    <div class="s4-label" id="s4-label">📊 体重・BMI記録</div>
+    <div class="s4-phone" id="s4-phone">
+      <img src="IMG_4084.jpg" alt="体重記録画面">
+    </div>
+    <div class="s4-features" id="s4-features">
+      <div class="s4-feat"><span>⚖️</span><span>BMI自動計算</span></div>
+      <div class="s4-feat"><span>💊</span><span>用量変更も記録</span></div>
+    </div>
+  </div>
+
+  <!-- Scene 5: まとめ -->
+  <div class="scene" id="s5">
+    <div class="s5-bg"></div>
+    <div class="s5-logo" id="s5-logo">
+      <img src="logo.png" alt="logo">
+      <span>WeeklyShot</span>
+    </div>
+    <div class="s5-list">
+      <div class="s5-item" id="sm1"><span>🔔</span><span>注射日にLINE通知</span></div>
+      <div class="s5-item" id="sm2"><span>✅</span><span>ワンタップで記録完了</span></div>
+      <div class="s5-item" id="sm3"><span>📊</span><span>体重・BMIグラフ</span></div>
+      <div class="s5-item" id="sm4"><span>🆓</span><span>完全無料・登録30秒</span></div>
+      <div class="s5-item" id="sm5"><span>📱</span><span>アプリ不要・LINE完結</span></div>
+    </div>
+    <div class="s5-url" id="s5-url">weekly-shot.vercel.app</div>
+    <div class="s5-badge-text" id="s5-badge">糖尿病・内分泌専門医が開発・監修</div>
+  </div>
+
+  <!-- Scene 6: Follow CTA -->
+  <div class="scene" id="s6">
+    <div class="s6-bg"></div>
+    <img class="s6-avatar" id="s6-avatar" src="dr-iwatatsu.png" alt="Dr.いわたつ">
+    <div class="s6-name" id="s6-name">Dr.いわたつ</div>
+    <div class="s6-title" id="s6-title">糖尿病・内分泌専門医<br>AIで医療アプリを作る医師</div>
+    <div class="s6-btn" id="s6-btn">フォローする</div>
+    <div class="s6-actions" id="s6-actions">
+      <span class="s6-action">📌 保存</span>
+      <span class="s6-action">🔄 シェア</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function fitToScreen(){
+  var c=document.getElementById('comp');
+  var s=Math.min(window.innerWidth/1080,window.innerHeight/1920);
+  c.style.transform='scale('+s+')';
+  c.style.transformOrigin='top center';
+  document.body.style.height=(1920*s)+'px';
+}
+fitToScreen();
+window.addEventListener('resize',fitToScreen);
+
+var tl=gsap.timeline({repeat:-1});
+
+// Scene 1: Hook (0-5s)
+tl.to('#s1',{opacity:1,duration:0.5},0)
+  .to('#s1-emoji',{opacity:1,duration:0.4},0.3)
+  .to('#s1-main',{opacity:1,duration:0.8,ease:'power2.out'},0.8)
+  .to('#s1-sub',{opacity:1,duration:0.6},2.0)
+  .to('#s1',{opacity:0,duration:0.4},4.6);
+
+// Scene 2: 通知画面 (5-11s)
+tl.to('#s2',{opacity:1,duration:0.5},5)
+  .to('#s2-label',{opacity:1,duration:0.5},5.3)
+  .to('#s2-phone',{opacity:1,scale:1,duration:0.8,ease:'back.out(1.4)'},5.8)
+  .to('#s2-caption',{opacity:1,duration:0.6},7.0)
+  .to('#s2',{opacity:0,duration:0.4},10.6);
+
+// Scene 3: LINEトーク (11-17s)
+tl.to('#s3',{opacity:1,duration:0.5},11)
+  .to('#s3-label',{opacity:1,duration:0.5},11.3)
+  .to('#s3-phone',{opacity:1,y:0,duration:0.8,ease:'power2.out'},11.8)
+  .to('#s3-badges',{opacity:1,duration:0.6},13.0)
+  .to('#s3',{opacity:0,duration:0.4},16.6);
+
+// Scene 4: 体重記録 (17-23s)
+tl.to('#s4',{opacity:1,duration:0.5},17)
+  .to('#s4-label',{opacity:1,duration:0.5},17.3)
+  .to('#s4-phone',{opacity:1,scale:1,duration:0.8,ease:'back.out(1.4)'},17.8)
+  .to('#s4-features',{opacity:1,duration:0.6},19.0)
+  .to('#s4',{opacity:0,duration:0.4},22.6);
+
+// Scene 5: まとめ (23-32s)
+tl.to('#s5',{opacity:1,duration:0.5},23)
+  .to('#s5-logo',{opacity:1,duration:0.6},23.3)
+  .to('#sm1',{opacity:1,x:0,duration:0.5,ease:'power2.out'},24.0)
+  .to('#sm2',{opacity:1,x:0,duration:0.5,ease:'power2.out'},24.8)
+  .to('#sm3',{opacity:1,x:0,duration:0.5,ease:'power2.out'},25.6)
+  .to('#sm4',{opacity:1,x:0,duration:0.5,ease:'power2.out'},26.4)
+  .to('#sm5',{opacity:1,x:0,duration:0.5,ease:'power2.out'},27.2)
+  .to('#s5-url',{opacity:1,duration:0.5},28.2)
+  .to('#s5-badge',{opacity:1,duration:0.4},28.8)
+  .to('#s5',{opacity:0,duration:0.4},31.6);
+
+// Scene 6: Follow CTA (32-38s)
+tl.to('#s6',{opacity:1,duration:0.5},32)
+  .to('#s6-avatar',{opacity:1,scale:1,duration:0.8,ease:'back.out(1.7)'},32.3)
+  .to('#s6-name',{opacity:1,duration:0.5},33.3)
+  .to('#s6-title',{opacity:1,duration:0.5},33.8)
+  .to('#s6-btn',{opacity:1,scale:1,duration:0.5,ease:'back.out(1.7)'},34.5)
+  .to('#s6-actions',{opacity:1,duration:0.4},35.2)
+  .to('#s6',{opacity:0,duration:0.4},37.6);
+</script>
+</body>
+</html>

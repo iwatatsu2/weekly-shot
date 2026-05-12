@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>note サムネイル</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#111;display:flex;justify-content:center;align-items:center;min-height:100vh;font-family:'Noto Sans JP',sans-serif}
+.card{width:1280px;height:670px;background:linear-gradient(135deg,#0f172a 0%,#1e293b 40%,#1e3a5f 100%);position:relative;overflow:hidden;display:flex;align-items:center;padding:0 80px;gap:60px}
+
+/* 背景装飾 */
+.card::before{content:'';position:absolute;top:-120px;right:-120px;width:500px;height:500px;background:radial-gradient(circle,rgba(34,197,94,.12) 0%,transparent 70%);border-radius:50%}
+.card::after{content:'';position:absolute;bottom:-80px;left:-80px;width:350px;height:350px;background:radial-gradient(circle,rgba(37,99,235,.1) 0%,transparent 70%);border-radius:50%}
+
+.left{flex:1;z-index:1}
+.badge{display:inline-block;background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.4);color:#22c55e;font-size:14px;font-weight:700;padding:6px 16px;border-radius:20px;margin-bottom:20px}
+.title{font-size:36px;font-weight:900;color:#fff;line-height:1.35;margin-bottom:12px}
+.title em{font-style:normal;color:#22c55e}
+.subtitle{font-size:18px;color:#94a3b8;line-height:1.7;margin-bottom:28px}
+.features{display:flex;gap:12px;flex-wrap:wrap}
+.feature{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px 16px;font-size:14px;color:#cbd5e1;font-weight:500}
+
+.right{position:relative;z-index:1;display:flex;gap:16px;align-items:center}
+.phone{border-radius:20px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.5);border:2px solid rgba(255,255,255,.1)}
+.phone img{display:block;width:180px;height:390px;object-fit:cover}
+.phone-lock img{width:170px;height:370px}
+
+.author{position:absolute;bottom:24px;right:40px;display:flex;align-items:center;gap:12px;z-index:2}
+.author img{width:40px;height:auto;border-radius:6px;object-fit:contain}
+.author-info{text-align:right}
+.author-name{font-size:14px;font-weight:700;color:#fff}
+.author-title{font-size:11px;color:#64748b}
+
+.logo{position:absolute;top:28px;left:80px;display:flex;align-items:center;gap:10px;z-index:2}
+.logo img{width:36px;height:36px;border-radius:8px}
+.logo-text{font-size:22px;font-weight:900;color:#fff}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">
+    <img src="logo.png" alt="logo">
+    <span class="logo-text">WeeklyShot</span>
+  </div>
+
+  <div class="left" style="padding-top:40px">
+    <div class="badge">糖尿病専門医が開発</div>
+    <div class="title">週1注射の<br><em>打ち忘れ</em>を防ぐ<br>LINEボットを<br><em>Claude Code</em>で<br>作った話</div>
+    <div class="subtitle">ウゴービ・ゼップバウンド対応<br>完全無料・登録30秒・アプリ不要</div>
+    <div class="features">
+      <span class="feature">LINE通知</span>
+      <span class="feature">ワンタップ記録</span>
+      <span class="feature">体重グラフ</span>
+      <span class="feature">BMI自動計算</span>
+    </div>
+  </div>
+
+  <div class="right">
+    <div class="phone phone-lock">
+      <img src="IMG_4090.jpg" alt="通知画面">
+    </div>
+    <div class="phone">
+      <img src="IMG_4093.jpg" alt="LINEトーク">
+    </div>
+  </div>
+
+  <div class="author">
+    <div class="author-info">
+      <div class="author-name">Dr.いわたつ</div>
+      <div class="author-title">糖尿病・内分泌専門医</div>
+    </div>
+    <img src="dr-iwatatsu.png" alt="Dr.いわたつ">
+  </div>
+</div>
+</body>
+</html>

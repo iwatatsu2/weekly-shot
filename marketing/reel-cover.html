@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>リールカバー</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;font-family:'Noto Sans JP',sans-serif}
+.cover{position:relative;width:1080px;height:1920px;background:linear-gradient(180deg,#0f172a 0%,#1e293b 40%,#312e81 100%);display:flex;flex-direction:column;justify-content:center;align-items:center;overflow:hidden;transform-origin:top center}
+
+/* 背景装飾 */
+.bg-circle{position:absolute;border-radius:50%;opacity:.08}
+.bg-c1{width:600px;height:600px;background:#22c55e;top:-100px;right:-200px}
+.bg-c2{width:400px;height:400px;background:#60a5fa;bottom:200px;left:-150px}
+
+.emoji{font-size:140px;margin-bottom:32px}
+.title{font-size:100px;font-weight:900;color:#fff;text-align:center;line-height:1.3;margin-bottom:16px}
+.title em{font-style:normal;color:#f87171}
+.subtitle{font-size:44px;color:#94a3b8;text-align:center;line-height:1.6;margin-bottom:48px}
+
+.phone-area{position:relative;margin-bottom:48px}
+.phone{width:320px;border-radius:28px;overflow:hidden;box-shadow:0 16px 64px rgba(0,0,0,.5);border:3px solid rgba(255,255,255,.12)}
+.phone img{display:block;width:100%;height:auto}
+
+.logo-row{display:flex;align-items:center;gap:16px;margin-bottom:20px}
+.logo-row img{width:64px;height:64px;border-radius:14px}
+.logo-row span{font-size:56px;font-weight:900;color:#fff}
+
+.badge{background:rgba(34,197,94,.15);border:2px solid #22c55e;color:#22c55e;font-size:36px;font-weight:700;padding:14px 32px;border-radius:40px;margin-bottom:20px}
+
+.doc{font-size:32px;color:#94a3b8;text-align:center}
+</style>
+</head>
+<body>
+<div class="cover" id="cover">
+  <div class="bg-circle bg-c1"></div>
+  <div class="bg-circle bg-c2"></div>
+
+  <div class="emoji">💉</div>
+  <div class="title">週1注射<br><em>忘れてない？</em></div>
+  <div class="subtitle">打ち忘れ防止LINEリマインダー</div>
+
+  <div class="phone-area">
+    <div class="phone"><img src="IMG_4118.jpg" alt="LINE通知"></div>
+  </div>
+
+  <div class="logo-row">
+    <img src="logo.png" alt="logo">
+    <span>WeeklyShot</span>
+  </div>
+  <div class="badge">完全無料・登録30秒</div>
+  <div class="doc">糖尿病・内分泌専門医が開発</div>
+</div>
+
+<script>
+function fit(){
+  var c=document.getElementById('cover');
+  var s=Math.min(window.innerWidth/1080,window.innerHeight/1920);
+  c.style.transform='scale('+s+')';
+  c.style.transformOrigin='top center';
+  document.body.style.height=(1920*s)+'px';
+}
+fit();
+window.addEventListener('resize',fit);
+</script>
+</body>
+</html>
